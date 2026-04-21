@@ -1,4 +1,5 @@
 asgiref==3.11.1
+<<<<<<< HEAD
 bleach==6.3.0
 colorama==0.4.6
 coverage==7.13.3
@@ -18,3 +19,18 @@ tabulate==0.9.0
 typing_extensions==4.15.0
 tzdata==2025.3
 webencodings==0.5.1
+=======
+dj-database-url==3.1.2
+Django==6.0.4
+django-allauth==65.16.1
+gunicorn==25.3.0
+icalendar==7.0.3
+packaging==26.1
+psycopg2-binary==2.9.12
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
+six==1.17.0
+sqlparse==0.5.5
+tzdata==2026.1
+whitenoise==6.12.0
+>>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
