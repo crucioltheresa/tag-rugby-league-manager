@@ -28,7 +28,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
+<<<<<<< HEAD
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+=======
+ALLOWED_HOSTS = [".herokuapp.com", "127.0.0.1"]
+
+>>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
 
 # Application definition
 
@@ -39,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+<<<<<<< HEAD
     "django.contrib.sites",
     "allauth",
     "allauth.account",
@@ -56,6 +62,11 @@ SITE_ID = 1  # required for multi-site support
 LOGIN_REDIRECT_URL = "/"  # redirect here after login
 LOGOUT_REDIRECT_URL = "/"  # redirect here after logout
 
+=======
+    "accounts",
+]
+
+>>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -64,7 +75,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+<<<<<<< HEAD
     "allauth.account.middleware.AccountMiddleware",
+=======
+>>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
 ]
 
 ROOT_URLCONF = "tag_rugby_manager.urls"
@@ -116,7 +130,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+<<<<<<< HEAD
 ACCOUNT_EMAIL_VERIFICATION = "none"
+=======
+>>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -136,5 +153,8 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 AUTH_USER_MODEL = "accounts.User"
+<<<<<<< HEAD
 
 ACCOUNT_ADAPTER = "accounts.adapters.CustomAccountAdapter"
+=======
+>>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
