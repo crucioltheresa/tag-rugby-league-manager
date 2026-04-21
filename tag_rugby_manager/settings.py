@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -28,12 +29,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-<<<<<<< HEAD
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-=======
-ALLOWED_HOSTS = [".herokuapp.com", "127.0.0.1"]
-
->>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
 
 # Application definition
 
@@ -44,13 +40,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-<<<<<<< HEAD
     "django.contrib.sites",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     # Local apps
-    "accounts",
+    "accounts.apps.AccountsConfig",
     "core",
     "seasons",
     "teams",
@@ -62,11 +57,6 @@ SITE_ID = 1  # required for multi-site support
 LOGIN_REDIRECT_URL = "/"  # redirect here after login
 LOGOUT_REDIRECT_URL = "/"  # redirect here after logout
 
-=======
-    "accounts",
-]
-
->>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -75,10 +65,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-<<<<<<< HEAD
     "allauth.account.middleware.AccountMiddleware",
-=======
->>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
 ]
 
 ROOT_URLCONF = "tag_rugby_manager.urls"
@@ -111,6 +98,10 @@ DATABASES = {
     }
 }
 
+if "test" in sys.argv:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -130,10 +121,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-<<<<<<< HEAD
 ACCOUNT_EMAIL_VERIFICATION = "none"
-=======
->>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+AUTH_USER_MODEL = "accounts.User"
+
+ACCOUNT_ADAPTER = "accounts.adapters.CustomAccountAdapter"
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -151,10 +148,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
-
-AUTH_USER_MODEL = "accounts.User"
-<<<<<<< HEAD
-
-ACCOUNT_ADAPTER = "accounts.adapters.CustomAccountAdapter"
-=======
->>>>>>> 7c03a2b3f635122bb16c4c7b8ae7ab258b76ddec
