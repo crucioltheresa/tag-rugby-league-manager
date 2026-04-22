@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from .models import InterestRegistration
+
+User = get_user_model()
 
 VALID_PAYLOAD = {
     "first_name": "User",
@@ -52,3 +55,14 @@ class InterestRegistrationViewTests(TestCase):
             "email",
             "Interest registration with this Email already exists.",
         )
+
+
+class InterestListAccessTests(TestCase):
+
+    def test_non_admin_cannot_access_interest_list(self):
+        user = User.objects.create_user(username="player", password="pass")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("interest_list"))
+
+        self.assertIn(response.status_code, [302, 403])
