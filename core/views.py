@@ -10,7 +10,6 @@ def IndexView(request):
     return render(request, "core/index.html")
 
 
-
 def interest_registration_view(request):
     if request.method == "POST":
         form = InterestRegistrationForm(request.POST)

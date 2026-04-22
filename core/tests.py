@@ -57,6 +57,29 @@ class InterestRegistrationViewTests(TestCase):
         )
 
 
+class UpdateSubmissionStatusTests(TestCase):
+
+    def test_admin_can_approve_submission(self):
+        admin = User.objects.create_user(
+            username="admin", password="pass", role="admin"
+        )
+        registration = InterestRegistration.objects.create(
+            first_name="User",
+            last_name="Test",
+            email="usertest@example.com",
+        )
+        self.client.force_login(admin)
+
+        response = self.client.post(
+            reverse("update_submission_status", args=[registration.id]),
+            {"status": "approved"},
+        )
+
+        self.assertRedirects(response, reverse("interest_list"))
+        registration.refresh_from_db()
+        self.assertEqual(registration.status, "approved")
+
+
 class InterestListAccessTests(TestCase):
 
     def test_non_admin_cannot_access_interest_list(self):
