@@ -4,12 +4,14 @@ from core.models import EmailWhitelist
 
 
 class CustomAccountAdapter(DefaultAccountAdapter):
-    print("ADAPTER CALLED")
 
     def save_user(self, request, user, form, commit=True):
         email = form.cleaned_data.get("email")
+        try:
+            whitelist_entry = EmailWhitelist.objects.get(email=email, used=False)
+        except EmailWhitelist.DoesNotExist:
+            raise ValidationError("Email is not authorized to register.")
 
-        whitelist_entry = EmailWhitelist.objects.get(email=email, used=False)
         whitelist_entry.used = True
         whitelist_entry.save()
         user = super().save_user(request, user, form, commit)

@@ -30,8 +30,13 @@ class InterestRegistrationForm(forms.ModelForm):
                 self.add_error(
                     "female_players", "This field is required for mixed teams."
                 )
+            elif female < 3:
+                self.add_error("female_players", "Insufficient female players.")
+
             if not male:
                 self.add_error(
                     "male_players", "This field is required for mixed teams."
                 )
+            elif male < 4:
+                self.add_error("male_players", "Insufficient male players.")
         return cleaned_data

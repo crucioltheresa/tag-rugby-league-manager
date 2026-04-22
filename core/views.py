@@ -1,15 +1,14 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 from .forms import InterestRegistrationForm
+from .models import InterestRegistration, EmailWhitelist
 
 
 # Create your views here.
-class IndexView:
-    def __call__(self, request):
-        return render(request, "core/index.html")
+def IndexView(request):
+    return render(request, "core/index.html")
 
-
-index_view = IndexView()
 
 
 def interest_registration_view(request):
@@ -26,3 +25,38 @@ def interest_registration_view(request):
 
 def interest_success_view(request):
     return render(request, "core/interest_success.html")
+
+
+def is_admin(user):
+    return user.is_authenticated and user.role == "admin"
+
+
+@user_passes_test(is_admin)
+def interest_list_view(request):
+    registrations = InterestRegistration.objects.all()
+    return render(request, "core/interest_list.html", {"registrations": registrations})
+
+
+@user_passes_test(is_admin)
+def update_submission_status_view(request, registration_id):
+    if request.method != "POST":
+        return redirect("interest_list")
+
+    registration = get_object_or_404(InterestRegistration, id=registration_id)
+    new_status = request.POST.get("status")
+
+    if new_status not in ("approved", "rejected"):
+        messages.error(request, "Invalid status value.")
+        return redirect("interest_list")
+
+    registration.status = new_status
+    registration.save()
+
+    if new_status == "approved":
+        EmailWhitelist.objects.get_or_create(
+            email=registration.email,
+            defaults={"source": "admin", "interest_registration": registration},
+        )
+
+    messages.success(request, f"Submission status updated to {new_status}.")
+    return redirect("interest_list")
