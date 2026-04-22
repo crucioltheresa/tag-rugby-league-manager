@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Hero -->
+<div id="hero" class="hero-section d-flex align-items-center rounded-3 mb-5 px-4 px-md-5">
+    <div class="row w-100 align-items-center">
+        <div class="col-md-7">
+            <h1 class="display-3 fw-bold text-white text-uppercase lh-1 mb-3">
+                Tag.<br>Get in<br>the game.
+            </h1>
+            <p class="text-white fw-semibold text-uppercase mb-1">The League. The Lifestyle. The Rush.</p>
+            <p class="text-white-50 mb-4">
+                Join the largest community for tag rugby. Experience fast-paced action, meet new people,
+                and elevate your game. Seasons are starting soon, and teams are forming now!
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="{% url 'interest_registration' %}" class="btn btn-trlm-pink btn-lg px-4">Register Your Team</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feature columns -->
+<div id="features" class="row text-center mb-5 g-4">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm feature-card">
+            <div class="card-body py-4">
+                <i class="fas fa-trophy fs-2 text-success mb-3"></i>
+                <h2 class="card-title h5 fw-bold text-uppercase">Competitive</h2>
+                <p class="card-text text-muted">Join a team and compete in our league.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm feature-card">
+            <div class="card-body py-4">
+                <i class="fas fa-users fs-2 text-success mb-3"></i>
+                <h2 class="card-title h5 fw-bold text-uppercase">Fun</h2>
+                <p class="card-text text-muted">Enjoy the game with friends and family.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm feature-card">
+            <div class="card-body py-4">
+                <i class="fas fa-hand-holding-heart fs-2 text-success mb-3"></i>
+                <h2 class="card-title h5 fw-bold text-uppercase">Inclusive</h2>
+                <p class="card-text text-muted">All skill levels welcome, no contact required.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- About + Schedule -->
+<div id="about" class="mb-5">
+    <h2 class="fw-bold text-uppercase mb-1">About Us</h2>
+    <div class="border-bottom border-success border-3 mb-3 w-25"></div>
+    <p class="text-muted">Welcome to Play Tag Rugby! We are a community-driven organization dedicated to
+        promoting the sport of tag rugby in a safe and inclusive environment.</p>
+
+    <div class="row mt-4 g-4">
+        <div class="col-md-8">
+            <h5 class="fw-bold text-uppercase mb-3">Season Schedule</h5>
+            <table id="season_schedule" class="table table-striped table-hover align-middle">
+                <thead class="bg-trlm-navy text-white">
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-01</td>
+                        <td>10:00 AM</td>
+                        <td>Central Park</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-08</td>
+                        <td>10:00 AM</td>
+                        <td>Central Park</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-15</td>
+                        <td>10:00 AM</td>
+                        <td>Central Park</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-22</td>
+                        <td>10:00 AM</td>
+                        <td>Central Park</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-29</td>
+                        <td>10:00 AM</td>
+                        <td>Central Park</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <h5 class="fw-bold text-uppercase mb-3">Contact</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item px-0">
+                    <i class="fas fa-map-marker-alt text-success me-2"></i>123 Main Street
+                </li>
+                <li class="list-group-item px-0">
+                    <i class="fas fa-envelope text-success me-2"></i>info@playtagrugby.com
+                </li>
+                <li class="list-group-item px-0">
+                    <i class="fas fa-phone text-success me-2"></i>(123) 456-7890
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- CTA banner -->
+<div class="bg-trlm-navy text-white text-center rounded-3 py-5 mb-4">
+    <h3 class="fw-bold text-uppercase mb-3">Ready to Play?</h3>
+    <a href="{% url 'interest_registration' %}" class="btn btn-trlm-pink btn-lg px-5">Register Interest</a>
+</div>
+
+{% endblock content %}

@@ -1,12 +1,29 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
 # Create your models here.
-class InterestResgistration(models.Model):
+class InterestRegistration(models.Model):
     id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    team_name = models.CharField(max_length=100, blank=True, null=True)
+    is_mixed = models.BooleanField(default=False)
+    estimated_players = models.IntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(7), MaxValueValidator(14)],
+    )
+    female_players = models.PositiveIntegerField(
+        blank=True, null=True, validators=[MinValueValidator(3)]
+    )
+    male_players = models.PositiveIntegerField(
+        blank=True, null=True, validators=[MinValueValidator(4)]
+    )
+    played_before = models.BooleanField(default=False)
+    message = models.TextField(blank=True, null=True)
     status = models.CharField(
         max_length=20,
         choices=[

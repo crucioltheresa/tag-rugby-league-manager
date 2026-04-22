@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Interest Registered Successfully</h2>
+<p>Thank you for registering your interest!</p>
+<a href="{% url 'interest_registration' %}">Register Another Interest</a>
+{% endblock %}

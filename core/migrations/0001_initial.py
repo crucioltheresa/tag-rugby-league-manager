@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='InterestResgistration',
+            name='InterestRegistration',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('first_name', models.CharField(max_length=100)),

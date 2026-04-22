@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Register Interest</h2>
+{% if form.errors %}
+<div class="alert alert-danger">
+    <ul>
+        {% for field in form %}
+        {% for error in field.errors %}
+        <li>{{ field.label }}: {{ error }}</li>
+        {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<form id="interest-form" method="post">
+    {% csrf_token %}
+    <p>{{ form.first_name.label_tag }} {{ form.first_name }}</p>
+    <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
+    <p>{{ form.email.label_tag }} {{ form.email }}</p>
+    <p>{{ form.phone_number.label_tag }} {{ form.phone_number }}</p>
+    <p>{{ form.team_name.label_tag }} {{ form.team_name }}</p>
+    <p>{{ form.estimated_players.label_tag }} {{ form.estimated_players }}</p>
+    <p>{{ form.is_mixed.label_tag }} {{ form.is_mixed }}</p>
+
+    <div id="player-counts" style="display: none;">
+        <p>{{ form.female_players.label_tag }} {{ form.female_players }}</p>
+        <p>{{ form.male_players.label_tag }} {{ form.male_players }}</p>
+    </div>
+
+    <p>{{ form.played_before.label_tag }} {{ form.played_before }}</p>
+    <p>{{ form.message.label_tag }} {{ form.message }}</p>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+<script>
+    const isMixed = document.getElementById("id_is_mixed");
+    const playerCounts = document.getElementById("player-counts");
+
+    isMixed.addEventListener("change", function () {
+        playerCounts.style.display = this.checked ? "block" : "none";
+    });
+</script>
+
+{% endblock %}
