@@ -42,6 +42,8 @@ class EmailWhitelist(models.Model):
     source = models.CharField(
         max_length=100, choices=[("admin", "Admin"), ("captain", "Captain")]
     )
-    team = models.CharField(max_length=100, blank=True, null=True)
+    interest_registration = models.ForeignKey(
+        InterestRegistration, null=True, blank=True, on_delete=models.SET_NULL
+    )
     used = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

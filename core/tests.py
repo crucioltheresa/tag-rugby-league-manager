@@ -18,6 +18,15 @@ VALID_PAYLOAD = {
 }
 
 
+class HomepageViewTests(TestCase):
+
+    def test_homepage_returns_200_and_uses_correct_template(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "core/index.html")
+
+
 class InterestRegistrationViewTests(TestCase):
 
     def test_valid_submission_saves_with_pending_status(self):
