@@ -1,0 +1,52 @@
+/* Brand colours */
+:root {
+    --trlm-navy: #152238;
+    --trlm-green: #2d5c1a;
+    --trlm-pink: #c4136a;
+}
+
+/* Navbar */
+.bg-trlm-navy {
+    background-color: var(--trlm-navy) !important;
+}
+
+.navbar .nav-link {
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* Footer */
+.footer-trlm {
+    background-color: var(--trlm-navy);
+}
+
+/* Hero */
+.hero-section {
+    background: linear-gradient(rgba(21, 34, 56, 0.75), rgba(21, 34, 56, 0.85)),
+                url('../images/hero-bg.jpg') center/cover no-repeat;
+    min-height: 520px;
+}
+
+.btn-trlm-pink {
+    background-color: var(--trlm-pink);
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+}
+.btn-trlm-pink:hover { background-color: #a0105a; color: #fff; }
+
+.btn-trlm-gold {
+    background-color: #d4a017;
+    color: #152238;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+}
+.btn-trlm-gold:hover { background-color: #b8880f; color: #152238; }
+
+/* Feature cards */
+.feature-card { border-left: 4px solid var(--trlm-green); }
