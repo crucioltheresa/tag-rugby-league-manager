@@ -24,29 +24,39 @@
 /* Hero */
 .hero-section {
     background: linear-gradient(rgba(21, 34, 56, 0.75), rgba(21, 34, 56, 0.85)),
-                url('../images/hero-bg.jpg') center/cover no-repeat;
+        url('../images/hero-bg.jpg') center/cover no-repeat;
     min-height: 520px;
 }
 
 .btn-trlm-pink {
-    background-color: var(--trlm-pink);
-    color: #fff;
+    background-color: var(--trlm-pink) !important;
+    color: #fff !important;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border: none;
 }
-.btn-trlm-pink:hover { background-color: #a0105a; color: #fff; }
+
+.btn-trlm-pink:hover {
+    background-color: #a0105a !important;
+    color: #fff !important;
+}
 
 .btn-trlm-gold {
-    background-color: #d4a017;
-    color: #152238;
+    background-color: #d4a017 !important;
+    color: #152238 !important;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border: none;
 }
-.btn-trlm-gold:hover { background-color: #b8880f; color: #152238; }
+
+.btn-trlm-gold:hover {
+    background-color: #b8880f !important;
+    color: #152238 !important;
+}
 
 /* Feature cards */
-.feature-card { border-left: 4px solid var(--trlm-green); }
+.feature-card {
+    border-left: 4px solid var(--trlm-green);
+}
