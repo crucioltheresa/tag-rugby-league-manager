@@ -15,8 +15,8 @@
                 Join the largest community for tag rugby. Experience fast-paced action, meet new people,
                 and elevate your game. Seasons are starting soon, and teams are forming now!
             </p>
-            <div class="d-flex flex-wrap gap-3">
-                <a href="{% url 'interest_registration' %}" class="btn btn-trlm-pink btn-lg px-4">Register Your Team</a>
+            <div class="d-flex flex-column flex-sm-row gap-3">
+                <a href="{% url 'interest_registration' %}" class="btn btn-trlm-pink px-4">Register Your Team</a>
             </div>
         </div>
     </div>
@@ -120,7 +120,7 @@
 <!-- CTA banner -->
 <div class="bg-trlm-navy text-white text-center rounded-3 py-5 mb-4">
     <h3 class="fw-bold text-uppercase mb-3">Ready to Play?</h3>
-    <a href="{% url 'interest_registration' %}" class="btn btn-trlm-pink btn-lg px-5">Register Interest</a>
+    <a href="{% url 'interest_registration' %}" class="btn btn-trlm-pink">Register Interest</a>
 </div>
 
 {% endblock content %}
