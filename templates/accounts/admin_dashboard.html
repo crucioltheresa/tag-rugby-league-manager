@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="card">
+    <h1>{{pending_interest_count}}</h1>
+    <a href="{% url 'interest_list' %}"> pending interests</a>
+
+</div>
+<div class="card">
+    <p>pending teams</p>
+</div>
+<div class="card">
+    <p>active season</p>
+</div>
+
+
+
+
+
+
+
+
+
+{% endblock %}
