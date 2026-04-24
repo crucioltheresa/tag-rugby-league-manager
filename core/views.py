@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from utils import is_admin
 from .forms import InterestRegistrationForm
 from .models import InterestRegistration, EmailWhitelist
 
@@ -24,10 +25,6 @@ def interest_registration_view(request):
 
 def interest_success_view(request):
     return render(request, "core/interest_success.html")
-
-
-def is_admin(user):
-    return user.is_authenticated and user.role == "admin"
 
 
 @user_passes_test(is_admin)

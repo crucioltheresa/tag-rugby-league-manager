@@ -40,11 +40,11 @@
                         <a class="nav-link px-3" href="{% url 'account_login' %}">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'account_signup' %}">Join Us</a>
+                        <a class="nav-link px-3" href="{% url 'account_signup' %}">Sign Up</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3 btn-trlm-pink rounded" href="{% url 'interest_registration' %}">Register
-                            your Team</a>
+                            Interest</a>
                     </li>
                     {% elif user.role == "captain" or user.role == "vice_captain" %}
                     <li class="nav-item">
@@ -59,12 +59,9 @@
                     <li class="nav-item">
                         <a class="nav-link px-3" href="#">Standings</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'account_logout' %}">Logout</a>
-                    </li>
                     {% elif user.role == "admin" %}
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="#">Admin Dashboard</a>
+                        <a class="nav-link px-3" href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3" href="#">Seasons</a>
@@ -75,26 +72,22 @@
                     <li class="nav-item">
                         <a class="nav-link px-3" href="#">Fixture Mgmt</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'account_logout' %}">Logout</a>
-                    </li>
                     {% elif user.role == "player" %}
                     <li class="nav-item">
                         <a class="nav-link px-3" href="#">Dashboard</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'account_logout' %}">Logout</a>
                     </li>
                     {% endif %}
                 </ul>
             </div>
             {% if user.is_authenticated %}
             <div class="dropdown ms-auto">
-                <div class="d-flex align-items-center text-white gap-2 dropdown-toggle"
-                    role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                <div class="d-flex align-items-center text-white gap-2 dropdown-toggle" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
                     <i class="fas fa-user-circle fs-4"></i>
                     <div class="lh-sm">
-                        <small class="d-block fw-semibold text-uppercase">{{ user.get_full_name|default:user.username }}</small>
+                        <small class="d-block fw-semibold text-uppercase">{{ user.get_full_name|default:user.username
+                            }}</small>
                         <small class="text-white-50">Welcome, {{ user.first_name|default:user.username }}</small>
                     </div>
                 </div>
