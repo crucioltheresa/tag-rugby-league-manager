@@ -7,7 +7,7 @@ from .models import InterestRegistration, EmailWhitelist
 
 
 # Create your views here.
-def IndexView(request):
+def index_view(request):
     return render(request, "core/index.html")
 
 
