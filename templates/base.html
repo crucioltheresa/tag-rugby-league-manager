@@ -42,34 +42,45 @@
                     <li class="nav-item">
                         <a class="nav-link px-3" href="{% url 'account_signup' %}">Join Us</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 btn-trlm-pink rounded" href="{% url 'interest_registration' %}">Register
+                            your Team</a>
+                    </li>
                     {% elif user.role == "captain" or user.role == "vice_captain" %}
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'dashboard' %}">Dashboard</a>
+                        <a class="nav-link px-3" href="#">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'fixtures' %}">Fixtures</a>
+                        <a class="nav-link px-3" href="#">Fixtures</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'my_fixtures' %}">My Fixtures</a>
+                        <a class="nav-link px-3" href="#">My Fixtures</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'standings' %}">Standings</a>
+                        <a class="nav-link px-3" href="#">Standings</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3" href="{% url 'account_logout' %}">Logout</a>
                     </li>
                     {% elif user.role == "admin" %}
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+                        <a class="nav-link px-3" href="#">Admin Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'seasons' %}">Seasons</a>
+                        <a class="nav-link px-3" href="#">Seasons</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'teams' %}">Teams</a>
+                        <a class="nav-link px-3" href="#">Teams</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'fixtures' %}">Fixture Mgmt</a>
+                        <a class="nav-link px-3" href="#">Fixture Mgmt</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="{% url 'account_logout' %}">Logout</a>
+                    </li>
+                    {% elif user.role == "player" %}
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="#">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-3" href="{% url 'account_logout' %}">Logout</a>
@@ -78,13 +89,18 @@
                 </ul>
             </div>
             {% if user.is_authenticated %}
-            <div class="d-flex align-items-center text-white ms-auto gap-2">
-                <i class="fas fa-user-circle fs-4"></i>
-                <div class="lh-sm">
-                    <small class="d-block fw-semibold text-uppercase">{{ user.get_full_name|default:user.username
-                        }}</small>
-                    <small class="text-white-50">Welcome, {{ user.first_name|default:user.username }}</small>
+            <div class="dropdown ms-auto">
+                <div class="d-flex align-items-center text-white gap-2 dropdown-toggle"
+                    role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                    <i class="fas fa-user-circle fs-4"></i>
+                    <div class="lh-sm">
+                        <small class="d-block fw-semibold text-uppercase">{{ user.get_full_name|default:user.username }}</small>
+                        <small class="text-white-50">Welcome, {{ user.first_name|default:user.username }}</small>
+                    </div>
                 </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
+                </ul>
             </div>
             {% endif %}
         </div>

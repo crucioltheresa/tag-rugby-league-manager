@@ -123,14 +123,17 @@ AUTH_PASSWORD_VALIDATORS = [
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
+ACCOUNT_ADAPTER = "accounts.adapters.CustomAccountAdapter"
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+
+AUTH_USER_MODEL = "accounts.User"
+
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
-
-AUTH_USER_MODEL = "accounts.User"
-
-ACCOUNT_ADAPTER = "accounts.adapters.CustomAccountAdapter"
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

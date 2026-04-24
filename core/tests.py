@@ -82,6 +82,12 @@ class UpdateSubmissionStatusTests(TestCase):
 
 class InterestListAccessTests(TestCase):
 
+    def test_unauthenticated_request_redirects_to_login(self):
+        response = self.client.get(reverse("interest_list"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("login", response.url)
+
     def test_non_admin_cannot_access_interest_list(self):
         user = User.objects.create_user(username="player", password="pass")
         self.client.force_login(user)
@@ -89,3 +95,24 @@ class InterestListAccessTests(TestCase):
         response = self.client.get(reverse("interest_list"))
 
         self.assertIn(response.status_code, [302, 403])
+
+
+class NavbarTests(TestCase):
+
+    def test_unauthenticated_shows_public_links(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "Join Us")
+        self.assertContains(response, "Login")
+        self.assertNotContains(response, "Logout")
+
+    def test_captain_shows_captain_links(self):
+        captain = User.objects.create_user(
+            username="captain1", password="pass", role="captain"
+        )
+        self.client.force_login(captain)
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "Logout")
+        self.assertContains(response, "Dashboard")
+        self.assertNotContains(response, "Join Us")
