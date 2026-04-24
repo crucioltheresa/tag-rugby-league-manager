@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from allauth.account.adapter import DefaultAccountAdapter
 from core.models import EmailWhitelist
 
@@ -27,3 +28,12 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         if not EmailWhitelist.objects.filter(email=email, used=False).exists():
             raise ValidationError("Email is not authorized to register.")
         return email
+
+    def get_login_redirect_url(self, request):
+        if request.user.role == "admin":
+            return reverse("admin_dashboard")
+        elif request.user.role == "captain" or request.user.role == "vice_captain":
+            return reverse("captain_dashboard")
+        elif request.user.role == "player":
+            return reverse("player_dashboard")
+        return "/"
