@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 text-center">
+                <i class="fas fa-exclamation-triangle fs-1 text-danger mb-3"></i>
+                <h4 class="fw-bold">Delete Team</h4>
+                <p class="text-muted">Are you sure you want to delete <strong>{{ team.name }}</strong>? This action
+                    cannot be undone.</p>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <form method="POST" action="{% url 'delete_team' team.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger px-4">Yes, Delete</button>
+                    </form>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

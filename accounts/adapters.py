@@ -33,7 +33,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         if request.user.role == "admin":
             return reverse("admin_dashboard")
         elif request.user.role == "captain" or request.user.role == "vice_captain":
-            return reverse("captain_dashboard")
+            return reverse("home")
         elif request.user.role == "player":
-            return reverse("player_dashboard")
+            return reverse("home")
         return "/"

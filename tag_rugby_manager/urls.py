@@ -23,4 +23,5 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("", include("core.urls")),
     path("", include("seasons.urls")),
+    path("", include("teams.urls")),
 ]

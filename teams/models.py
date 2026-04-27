@@ -1,3 +1,32 @@
 from django.db import models
+from seasons.models import Season
+from accounts.models import User
+
 
 # Create your models here.
+class Team(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    season = models.ForeignKey(
+        Season,
+        on_delete=models.CASCADE,
+    )
+    captain = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="captained_teams"
+    )
+    vice_captain = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name="vc_teams", null=True, blank=True
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "Pending"),
+            ("approved", "Approved"),
+            ("rejected", "Rejected"),
+        ],
+        default="pending",
+    )
+    registered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("season", "captain")]

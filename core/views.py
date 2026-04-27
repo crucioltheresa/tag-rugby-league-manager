@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
-from utils import is_admin
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from .forms import InterestRegistrationForm
 from .models import InterestRegistration, EmailWhitelist
 
@@ -27,14 +27,18 @@ def interest_success_view(request):
     return render(request, "core/interest_success.html")
 
 
-@user_passes_test(is_admin)
+@login_required
 def interest_list_view(request):
+    if request.user.role != "admin":
+        raise PermissionDenied
     registrations = InterestRegistration.objects.all()
     return render(request, "core/interest_list.html", {"registrations": registrations})
 
 
-@user_passes_test(is_admin)
+@login_required
 def update_submission_status_view(request, registration_id):
+    if request.user.role != "admin":
+        raise PermissionDenied
     if request.method != "POST":
         return redirect("interest_list")
 
