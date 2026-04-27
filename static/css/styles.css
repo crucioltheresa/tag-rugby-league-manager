@@ -56,6 +56,30 @@
     color: #152238 !important;
 }
 
+/* Form inputs — applies Bootstrap form-control styling without modifying forms.py */
+.trlm-form input:not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+.trlm-form textarea,
+.trlm-form select {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+}
+.trlm-form input:focus,
+.trlm-form textarea:focus,
+.trlm-form select:focus {
+    border-color: var(--trlm-navy);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(21, 34, 56, 0.2);
+}
+
 /* Feature cards */
 .feature-card {
     border-left: 4px solid var(--trlm-green);

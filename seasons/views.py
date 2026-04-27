@@ -24,7 +24,7 @@ def create_season(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Your season has been created successfully!")
-            return redirect("season_list_view")
+            return redirect("seasons_list_view")
     else:
         form = SeasonForm()
     return render(request, "seasons/season_form.html", {"form": form})
@@ -34,27 +34,27 @@ def create_season(request):
 def edit_season(request, season_id):
     if request.user.role != "admin":
         raise PermissionDenied
-    season = get_object_or_404(Season, season_id=season_id)
+    season = get_object_or_404(Season, id=season_id)
     if request.method == "POST":
         form = SeasonForm(request.POST, instance=season)
         if form.is_valid():
             form.save()
             messages.success(request, "Your season has been updated successfully!")
-            return redirect("season_list_view")
+            return redirect("seasons_list_view")
     elif request.method == "GET":
         form = SeasonForm(instance=season)
-    return render(request, "seasons/season_form.html", {"form": form})
+    return render(request, "seasons/season_form.html", {"form": form, "season": season})
 
 
 @login_required
 def delete_season(request, season_id):
     if request.user.role != "admin":
         raise PermissionDenied
-    season = get_object_or_404(Season, season_id=season_id)
+    season = get_object_or_404(Season, id=season_id)
     if request.method == "POST":
         season.delete()
         messages.success(request, "Your season has been deleted successfully!")
-        return redirect("season_list_view")
+        return redirect("seasons_list_view")
     return render(request, "seasons/season_confirm_delete.html", {"season": season})
 
 
@@ -62,5 +62,5 @@ def delete_season(request, season_id):
 def season_detail(request, season_id):
     if request.user.role != "admin":
         raise PermissionDenied
-    season = get_object_or_404(Season, season_id=season_id)
+    season = get_object_or_404(Season, id=season_id)
     return render(request, "seasons/season_detail.html", {"season": season})

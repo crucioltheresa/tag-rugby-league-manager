@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<i class="fa-solid fa-football"></i>
-<h1 class="alert-heading">Page Not Found</h1>
-<p class="alert">Looks like this page got tagged out.</p>
-<a href="{ url 'home'}">Go to homepage</a>
+<div class="text-center py-5">
+    <i class="fas fa-football-ball fs-1 text-secondary mb-3"></i>
+    <h1 class="fw-bold">Page Not Found</h1>
+    <p class="text-muted">Looks like this page got tagged out.</p>
+    <a href="{% url 'home' %}" class="btn btn-trlm-pink mt-2">Go to Homepage</a>
+</div>
 {% endblock %}

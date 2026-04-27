@@ -125,8 +125,9 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 
 ACCOUNT_ADAPTER = "accounts.adapters.CustomAccountAdapter"
 
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
 

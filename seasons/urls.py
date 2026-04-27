@@ -8,9 +8,9 @@ from .views import (
 )
 
 urlpatterns = [
-    path("seasons/", seasons_list_view, name="seasons"),
+    path("seasons/", seasons_list_view, name="seasons_list_view"),
     path("seasons/create/", create_season, name="create_season"),
-    path("season/<int:season_id>/", season_detail, name="season_detail"),
+    path("seasons/<int:season_id>/", season_detail, name="season_detail"),
     path("seasons/<int:season_id>/edit/", edit_season, name="season_edit"),
     path("seasons/<int:season_id>/delete/", delete_season, name="delete_season"),
 ]

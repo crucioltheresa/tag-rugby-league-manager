@@ -1,55 +1,115 @@
 {% extends "base.html" %}
-{% load static %}
 
 {% block content %}
-<h2>Register Interest</h2>
-{% if form.errors %}
-<div class="alert alert-danger">
-    <ul>
-        {% for field in form %}
-        {% for error in field.errors %}
-        <li>{{ field.label }}: {{ error }}</li>
-        {% endfor %}
-        {% endfor %}
-        {% for error in form.non_field_errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endif %}
-<form id="interest-form" method="post">
-    {% csrf_token %}
-    <p>{{ form.first_name.label_tag }} {{ form.first_name }}</p>
-    <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
-    <p>{{ form.email.label_tag }} {{ form.email }}</p>
-    <p>{{ form.phone_number.label_tag }} {{ form.phone_number }}</p>
-    <p>{{ form.team_name.label_tag }} {{ form.team_name }}</p>
-    <p>{{ form.estimated_players.label_tag }} {{ form.estimated_players }}</p>
-    <p>{{ form.is_mixed.label_tag }} {{ form.is_mixed }}</p>
 
-    <div id="player-counts" style="display: none;">
-        <p>{{ form.female_players.label_tag }} {{ form.female_players }}</p>
-        <p>{{ form.male_players.label_tag }} {{ form.male_players }}</p>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+
+        <h2 class="fw-bold text-uppercase mb-1">Register Interest</h2>
+        <div class="border-bottom border-success border-3 mb-4 w-25"></div>
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                {% for field in form %}
+                {% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <form id="interest-form" method="post" class="trlm-form">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.email.label }}</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.phone_number.label }}</label>
+                            {{ form.phone_number }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">{{ form.team_name.label }}</label>
+                            {{ form.team_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.estimated_players.label }}</label>
+                            {{ form.estimated_players }}
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end pb-3">
+                            <div class="form-check">
+                                {{ form.is_mixed }}
+                                <label class="form-check-label fw-semibold" for="{{ form.is_mixed.id_for_label }}">
+                                    {{ form.is_mixed.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="player-counts" class="col-12 row g-3" style="display: none;">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">{{ form.female_players.label }}</label>
+                                {{ form.female_players }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">{{ form.male_players.label }}</label>
+                                {{ form.male_players }}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.played_before }}
+                                <label class="form-check-label fw-semibold" for="{{ form.played_before.id_for_label }}">
+                                    {{ form.played_before.label }}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">{{ form.message.label }}</label>
+                            {{ form.message }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-trlm-pink px-4">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 text-center py-4">
+            <div class="card-body">
+                <h5 class="fw-bold">Already Approved?</h5>
+                <p class="text-muted small mb-3">Create your account to access the league portal.</p>
+                <a href="{% url 'account_signup' %}" class="btn btn-trlm-navy">Create Account</a>
+            </div>
+        </div>
+
     </div>
-
-    <p>{{ form.played_before.label_tag }} {{ form.played_before }}</p>
-    <p>{{ form.message.label_tag }} {{ form.message }}</p>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-
-<div>
-    <h3>Already Approved?</h3>
-    <button type="button" class="btn btn-trlm-pink" href="{% url 'account_signup' %}">Create Account</button>
 </div>
-
 
 <script>
     const isMixed = document.getElementById("id_is_mixed");
     const playerCounts = document.getElementById("player-counts");
 
     isMixed.addEventListener("change", function () {
-        playerCounts.style.display = this.checked ? "block" : "none";
+        playerCounts.style.display = this.checked ? "flex" : "none";
     });
 </script>
 
