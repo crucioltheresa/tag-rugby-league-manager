@@ -29,6 +29,7 @@
                 </div>
                 <div>
                     <div class="text-muted small text-uppercase">Active Season</div>
+                    <div class="fw-bold">{{ active_season_name }}</div>
                 </div>
             </div>
         </div>
@@ -50,7 +51,7 @@
 <!-- Quick actions -->
 <h5 class="fw-bold text-uppercase mb-3">Quick Actions</h5>
 <div class="d-flex flex-wrap gap-3">
-    <a href="{% url 'seasons' %}" class="btn btn-trlm-navy">
+    <a href="{% url 'seasons_list_view' %}" class="btn btn-trlm-navy">
         <i class="fas fa-calendar me-2"></i>Manage Seasons
     </a>
     <a href="#" class="btn btn-trlm-navy">

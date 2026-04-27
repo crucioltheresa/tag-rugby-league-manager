@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from core.models import InterestRegistration
+from seasons.models import Season
 
 
 # Create your views here.
@@ -14,8 +15,8 @@ def admin_dashboard_view(request):
     ).count()
     # pending_team_count = request.user.teams.filter(status="pending").count()
     pending_team_count = 0
-    # active_season_name = request.user.active_season.name if request.user.active_season else "No active season"
-    active_season_name = "No active season"
+    active_season = Season.objects.filter(status="active").first()
+    active_season_name = active_season.name if active_season else "No active season"
     context = {
         "pending_interest_count": pending_interest_count,
         "pending_team_count": pending_team_count,

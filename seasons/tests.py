@@ -30,7 +30,6 @@ class SeasonFormValidationTests(TestCase):
             "End date must be after start date.",
         )
 
-
     def test_two_active_seasons_raises_validation_error(self):
         Season.objects.create(
             name="Spring 2026",
