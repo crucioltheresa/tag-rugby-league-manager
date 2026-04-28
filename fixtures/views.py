@@ -17,4 +17,4 @@ def generate_fixture_view(request, season_id):
         messages.success(request, "Fixtures generated successfully!")
     except ValueError as e:
         messages.error(request, str(e))
-    return redirect("fixtures_list")
+    return redirect("season_detail", season_id=season_id)

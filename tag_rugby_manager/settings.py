@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -52,6 +53,25 @@ INSTALLED_APPS = [
     "fixtures",
     "standings",
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Tag Rugby Admin",
+    "site_header": "Tag Rugby Manager",
+    "site_brand": "Tag Rugby",
+    "welcome_sign": "Welcome to Tag Rugby Manager",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "icons": {
+        "accounts.User": "fas fa-users",
+        "core.EmailWhitelist": "fas fa-envelope",
+        "core.InterestRegistration": "fas fa-clipboard-list",
+        "seasons.Season": "fas fa-calendar-alt",
+        "teams.Team": "fas fa-shield-alt",
+        "fixtures.Match": "fas fa-futbol",
+    },
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+}
 
 SITE_ID = 1  # required for multi-site support
 LOGIN_REDIRECT_URL = "/"  # redirect here after login
