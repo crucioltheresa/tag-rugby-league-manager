@@ -21,6 +21,12 @@
                 <p class="text-muted small text-uppercase fw-semibold mb-1">End Date</p>
                 <p class="fw-bold">{{ season.end_date }}</p>
             </div>
+            {% if season.venue %}
+            <div class="col-md-12">
+                <p class="text-muted small text-uppercase fw-semibold mb-1">Venue</p>
+                <p class="fw-bold">{{ season.venue }}</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

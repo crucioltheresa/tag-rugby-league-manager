@@ -36,6 +36,7 @@ class SeasonFormValidationTests(TestCase):
             start_date="2026-03-01",
             end_date="2026-06-30",
             status="active",
+            venue="Main Stadium",
         )
 
         response = self.client.post(reverse("create_season"), {

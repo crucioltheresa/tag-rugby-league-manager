@@ -10,9 +10,10 @@ class SeasonForm(forms.ModelForm):
         model = Season
         fields = [
             "name",
+            "status",
+            "venue",
             "start_date",
             "end_date",
-            "status",
         ]
 
     def clean(self):
