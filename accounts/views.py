@@ -1,8 +1,23 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from allauth.account.views import LoginView, SignupView, LogoutView
+from .forms import CustomSignupForm
 from core.models import InterestRegistration
 from seasons.models import Season
+
+
+class CustomLoginView(LoginView):
+    template_name = "accounts/login.html"
+
+
+class CustomSignupView(SignupView):
+    template_name = "accounts/signup.html"
+    form_class = CustomSignupForm
+
+
+class CustomLogoutView(LogoutView):
+    template_name = "accounts/logout.html"
 
 
 # Create your views here.
