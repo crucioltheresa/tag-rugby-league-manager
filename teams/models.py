@@ -28,5 +28,8 @@ class Team(models.Model):
     )
     registered_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.name} — {self.season}"
+
     class Meta:
         unique_together = [("season", "captain")]

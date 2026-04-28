@@ -4,7 +4,7 @@
 
 <div class="d-flex align-items-center justify-content-between mb-1 flex-wrap gap-2">
     <h2 class="fw-bold text-uppercase mb-0">Seasons</h2>
-    <a href="{% url 'create_season' %}" class="btn btn-trlm-pink">
+    <a href="{% url 'season_create' %}" class="btn btn-trlm-pink">
         <i class="fas fa-plus me-1"></i>Create Season
     </a>
 </div>
@@ -26,7 +26,8 @@
         <tr>
             <td class="fw-semibold">{{ season.name }}</td>
             <td>
-                <span class="badge bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
+                <span
+                    class="badge bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
                     {{ season.get_status_display }}
                 </span>
             </td>
@@ -36,7 +37,7 @@
                 <div class="d-flex gap-1">
                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'season_detail' season.id %}">View</a>
                     <a class="btn btn-sm btn-trlm-navy" href="{% url 'season_edit' season.id %}">Edit</a>
-                    <a class="btn btn-sm btn-danger" href="{% url 'delete_season' season.id %}">Delete</a>
+                    <a class="btn btn-sm btn-danger" href="{% url 'season_delete' season.id %}">Delete</a>
                 </div>
             </td>
         </tr>
@@ -47,7 +48,7 @@
 <div class="text-center py-5 text-muted">
     <i class="fas fa-calendar fs-1 mb-3"></i>
     <p>No seasons created yet.</p>
-    <a href="{% url 'create_season' %}" class="btn btn-trlm-pink">Create First Season</a>
+    <a href="{% url 'season_create' %}" class="btn btn-trlm-pink">Create First Season</a>
 </div>
 {% endif %}
 

@@ -16,7 +16,7 @@ def seasons_list_view(request):
 
 
 @login_required
-def create_season(request):
+def season_create(request):
     if request.user.role != "admin":
         raise PermissionDenied
     if request.method == "POST":
@@ -31,7 +31,7 @@ def create_season(request):
 
 
 @login_required
-def edit_season(request, season_id):
+def season_edit(request, season_id):
     if request.user.role != "admin":
         raise PermissionDenied
     season = get_object_or_404(Season, id=season_id)
@@ -47,7 +47,7 @@ def edit_season(request, season_id):
 
 
 @login_required
-def delete_season(request, season_id):
+def season_delete(request, season_id):
     if request.user.role != "admin":
         raise PermissionDenied
     season = get_object_or_404(Season, id=season_id)

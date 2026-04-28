@@ -24,4 +24,5 @@ urlpatterns = [
     path("", include("core.urls")),
     path("", include("seasons.urls")),
     path("", include("teams.urls")),
+    # path("", include("fixtures.urls")),
 ]

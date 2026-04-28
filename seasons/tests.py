@@ -16,12 +16,15 @@ class SeasonFormValidationTests(TestCase):
         self.client.force_login(self.admin)
 
     def test_end_date_before_start_date_shows_error(self):
-        response = self.client.post(reverse("create_season"), {
-            "name": "Summer 2026",
-            "start_date": "2026-09-01",
-            "end_date": "2026-06-01",
-            "status": "draft",
-        })
+        response = self.client.post(
+            reverse("season_create"),
+            {
+                "name": "Summer 2026",
+                "start_date": "2026-09-01",
+                "end_date": "2026-06-01",
+                "status": "draft",
+            },
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertFormError(
@@ -39,12 +42,15 @@ class SeasonFormValidationTests(TestCase):
             venue="Main Stadium",
         )
 
-        response = self.client.post(reverse("create_season"), {
-            "name": "Summer 2026",
-            "start_date": "2026-07-01",
-            "end_date": "2026-09-30",
-            "status": "active",
-        })
+        response = self.client.post(
+            reverse("season_create"),
+            {
+                "name": "Summer 2026",
+                "start_date": "2026-07-01",
+                "end_date": "2026-09-30",
+                "status": "active",
+            },
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertFormError(

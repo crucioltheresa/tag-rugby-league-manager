@@ -17,7 +17,7 @@ def teams_list_view(request):
 
 
 @login_required
-def create_team(request):
+def team_create(request):
     if request.user.role not in ("captain", "vice_captain"):
         raise PermissionDenied
     active_season = Season.objects.filter(status="active").first()
@@ -60,7 +60,7 @@ def update_team_status(request, team_id):
 
 
 @login_required
-def edit_team(request, team_id):
+def team_edit(request, team_id):
     team = get_object_or_404(Team, id=team_id)
     if request.user not in (team.captain, team.vice_captain):
         raise PermissionDenied
@@ -76,7 +76,7 @@ def edit_team(request, team_id):
 
 
 @login_required
-def delete_team(request, team_id):
+def team_delete(request, team_id):
     team = get_object_or_404(Team, id=team_id)
     if request.user not in (team.captain, team.vice_captain):
         raise PermissionDenied

@@ -37,3 +37,6 @@ class Match(models.Model):
         ],
         default="scheduled",
     )
+
+    def __str__(self):
+        return f"{self.team_a} vs {self.team_b} (Round {self.round_number}, {self.season})"

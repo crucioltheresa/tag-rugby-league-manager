@@ -25,6 +25,9 @@ class Season(models.Model):
     venue = models.CharField(max_length=200, blank=True, choices=VENUE_CHOICES)
     created_on = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.name} ({self.get_status_display()})"
+
     def clean(self):
         if self.start_date and self.end_date and self.end_date < self.start_date:
             raise ValidationError("End date must be after start date.")

@@ -35,6 +35,9 @@ class InterestRegistration(models.Model):
     )
     submitted_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.email})"
+
 
 class EmailWhitelist(models.Model):
     id = models.AutoField(primary_key=True)
@@ -47,3 +50,6 @@ class EmailWhitelist(models.Model):
     )
     used = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.email
