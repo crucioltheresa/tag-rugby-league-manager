@@ -49,16 +49,10 @@
                     </li>
                     {% elif user.role == "captain" or user.role == "vice_captain" %}
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="#">Dashboard</a>
+                        <a class="nav-link px-3" href="{% url 'current_fixtures' %}">Fixtures</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="#">Fixtures</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3" href="#">My Fixtures</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3" href="#">Standings</a>
+                        <a class="nav-link px-3" href="{% url 'my_fixtures' %}">My Fixtures</a>
                     </li>
                     {% elif user.role == "admin" %}
                     <li class="nav-item">
@@ -71,12 +65,11 @@
                         <a class="nav-link px-3" href="{% url 'teams_list_view' %}">Teams</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="#">Fixture Mgmt</a>
+                        <a class="nav-link px-3" href="{% url 'current_fixtures' %}">Fixtures</a>
                     </li>
                     {% elif user.role == "player" %}
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="#">Dashboard</a>
-                    </li>
+                        <a class="nav-link px-3" href="{% url 'current_fixtures' %}">Fixtures</a>
                     </li>
                     {% endif %}
                 </ul>

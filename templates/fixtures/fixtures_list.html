@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-1 flex-wrap gap-2">
+    <h2 class="fw-bold text-uppercase mb-0">Fixtures — {{ season.name }}</h2>
+    <span class="badge fs-6 bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
+        {{ season.get_status_display }}
+    </span>
+</div>
+<div class="border-bottom border-success border-3 mb-4 w-25"></div>
+
+<!-- Toolbar -->
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <div class="btn-group" role="group">
+        <button id="btn-table" class="btn btn-sm btn-trlm-navy" onclick="showView('table')">
+            <i class="fas fa-table me-1"></i>Table
+        </button>
+        <button id="btn-calendar" class="btn btn-sm btn-outline-secondary" onclick="showView('calendar')">
+            <i class="fas fa-calendar me-1"></i>Calendar
+        </button>
+    </div>
+    {% if user.role == "admin" and rounds %}
+    <a href="{% url 'bulk_schedule' season_id=season.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-calendar-check me-1"></i>Schedule All Rounds
+    </a>
+    {% endif %}
+</div>
+
+<!-- Table view -->
+<div id="view-table">
+{% if rounds %}
+    {% for round in rounds %}
+    <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h5 class="fw-semibold text-uppercase text-muted mb-0">
+                <i class="fas fa-flag me-2"></i>Round {{ round.round_number }}
+            </h5>
+            {% if user.role == "admin" %}
+            <a href="{% url 'schedule_round' season_id=season.pk round_number=round.round_number %}"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-calendar-alt me-1"></i>Schedule
+            </a>
+            {% endif %}
+        </div>
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Home</th>
+                            <th class="text-center" style="width:80px;">Score</th>
+                            <th>Away</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Pitch</th>
+                            <th class="pe-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match in round.matches %}
+                        <tr>
+                            <td class="ps-4 fw-semibold">{{ match.team_a.name }}</td>
+                            <td class="text-center">
+                                {% if match.status == 'played' %}
+                                    <span class="fw-bold">{{ match.team_a_score }} – {{ match.team_b_score }}</span>
+                                {% else %}
+                                    <span class="text-muted">vs</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-semibold">{{ match.team_b.name }}</td>
+                            <td class="text-muted small">{% if match.date %}{{ match.date }}{% else %}—{% endif %}</td>
+                            <td class="text-muted small">{% if match.time %}{{ match.time }}{% else %}—{% endif %}</td>
+                            <td class="text-muted small">{% if match.pitch %}{{ match.pitch }}{% else %}—{% endif %}</td>
+                            <td class="pe-4">
+                                <span class="badge bg-{% if match.status == 'played' %}success{% elif match.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+                                    {{ match.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info">No fixtures have been generated for this season yet.</div>
+{% endif %}
+</div>
+
+<!-- Calendar view -->
+<div id="view-calendar" style="display:none;">
+    {% if rounds %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-3">
+            <div class="d-flex gap-3 mb-3 small">
+                <span><span class="badge me-1" style="background:#6c757d;">&nbsp;</span>Scheduled</span>
+                <span><span class="badge me-1" style="background:#2d5c1a;">&nbsp;</span>Played</span>
+                <span><span class="badge me-1" style="background:#dc3545;">&nbsp;</span>Cancelled</span>
+            </div>
+            <div id="fullcalendar"></div>
+        </div>
+    </div>
+    <p class="text-muted small mt-2">
+        <i class="fas fa-info-circle me-1"></i>Only matches with a date assigned appear on the calendar.
+    </p>
+    {% else %}
+    <div class="alert alert-info">No fixtures have been generated for this season yet.</div>
+    {% endif %}
+</div>
+
+<div class="d-flex flex-wrap gap-2 mt-3">
+    <a href="{% url 'season_detail' season_id=season.pk %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Season
+    </a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script>
+    const EVENTS = {{ calendar_events|safe }};
+
+    function showView(view) {
+        document.getElementById('view-table').style.display    = view === 'table'    ? '' : 'none';
+        document.getElementById('view-calendar').style.display = view === 'calendar' ? '' : 'none';
+        document.getElementById('btn-table').className    = 'btn btn-sm ' + (view === 'table'    ? 'btn-trlm-navy' : 'btn-outline-secondary');
+        document.getElementById('btn-calendar').className = 'btn btn-sm ' + (view === 'calendar' ? 'btn-trlm-navy' : 'btn-outline-secondary');
+        if (view === 'calendar') calendar.render();
+        localStorage.setItem('fixtureView_{{ season.pk }}', view);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const calEl = document.getElementById('fullcalendar');
+        if (!calEl) return;
+
+        window.calendar = new FullCalendar.Calendar(calEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,listMonth',
+            },
+            events: EVENTS,
+            eventClick: function(info) {
+                const p = info.event.extendedProps;
+                alert(`Round ${p.round}\n${info.event.title}\nPitch: ${p.pitch}\nStatus: ${p.status}`);
+            },
+            height: 'auto',
+        });
+
+        const saved = localStorage.getItem('fixtureView_{{ season.pk }}');
+        if (saved === 'calendar') {
+            showView('calendar');
+        }
+    });
+</script>
+{% endblock %}

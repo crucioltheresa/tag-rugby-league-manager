@@ -16,6 +16,7 @@ class Match(models.Model):
     round_number = models.IntegerField(null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     time = models.TimeField(null=True, blank=True)
+    pitch = models.CharField(max_length=50, blank=True)
     team_a_score = models.IntegerField(null=True, blank=True)
     team_b_score = models.IntegerField(null=True, blank=True)
     match_type = models.CharField(

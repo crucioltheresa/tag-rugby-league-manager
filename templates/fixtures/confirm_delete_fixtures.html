@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+
+        <h2 class="fw-bold text-uppercase mb-1">Delete Fixtures</h2>
+        <p class="text-muted mb-1">{{ season.name }}</p>
+        <div class="border-bottom border-danger border-3 mb-4 w-25"></div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <p class="mb-2">You are about to delete <strong>{{ match_count }} match{{ match_count|pluralize }}</strong> for:</p>
+                <p class="fw-bold fs-5 mb-3">{{ season.name }} — {{ season.get_venue_display }}</p>
+                <p class="text-danger small mb-4">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    This will permanently remove all fixtures, including any scheduled dates, times, and results. This cannot be undone.
+                </p>
+                <form method="post" class="d-flex justify-content-between">
+                    {% csrf_token %}
+                    <a href="{% url 'season_detail' season_id=season.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="fas fa-trash me-1"></i>Yes, Delete All Fixtures
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

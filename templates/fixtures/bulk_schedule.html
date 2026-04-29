@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+
+        <h2 class="fw-bold text-uppercase mb-1">Schedule All Rounds</h2>
+        <p class="text-muted mb-1">{{ season.name }} — {{ season.get_venue_display }}</p>
+        <div class="border-bottom border-success border-3 mb-4 w-25"></div>
+
+        {% if not has_time_slots %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            No kickoff times configured for this season. Add time slots in the season settings first.
+        </div>
+        {% endif %}
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.start_date.label }}</label>
+                        <div class="text-muted small mb-1">{{ form.start_date.help_text }}</div>
+                        {{ form.start_date }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.interval_days.label }}</label>
+                        <div class="text-muted small mb-1">{{ form.interval_days.help_text }}</div>
+                        {{ form.interval_days }}
+                    </div>
+
+                    {% if preview %}
+                    <div class="mb-3">
+                        <p class="fw-semibold small text-uppercase text-muted mb-2">Rounds</p>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            {% for r in preview %}
+                            <span class="badge {% if r.already_scheduled %}bg-success{% else %}bg-secondary{% endif %}">
+                                Round {{ r.round_number }}{% if r.already_scheduled %} ✓{% endif %}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        <div class="text-muted small">
+                            <span class="badge bg-success me-1">✓</span> already scheduled
+                            <span class="badge bg-secondary ms-2 me-1">&nbsp;</span> not yet scheduled
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="form-check mb-4">
+                        {{ form.overwrite }}
+                        <label class="form-check-label small" for="{{ form.overwrite.id_for_label }}">
+                            {{ form.overwrite.label }}
+                        </label>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'fixture_list' season_id=season.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-trlm-pink px-4" {% if not has_time_slots %}disabled{% endif %}>
+                            <i class="fas fa-calendar-check me-1"></i>Schedule All Rounds
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -6,66 +6,127 @@
 <h2 class="fw-bold text-uppercase mb-1">Admin Dashboard</h2>
 <div class="border-bottom border-success border-3 mb-4 w-25"></div>
 
-<!-- Stats cards -->
-<div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="bg-trlm-navy text-white rounded-3 p-3">
-                    <i class="fas fa-clipboard-list fs-4"></i>
-                </div>
-                <div>
-                    <div class="fs-2 fw-bold">{{ pending_interest_count }}</div>
-                    <div class="text-muted small text-uppercase">Pending Interests</div>
-                </div>
+<!-- Stats row -->
+<div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <div class="fs-2 fw-bold text-trlm-navy">{{ pending_interest_count }}</div>
+                <div class="text-muted small text-uppercase mt-1">Pending Interests</div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="bg-success text-white rounded-3 p-3">
-                    <i class="fas fa-calendar fs-4"></i>
-                </div>
-                <div>
-                    <div class="text-muted small text-uppercase">Active Season</div>
-                    <div class="fw-bold">{{ active_season_name }}</div>
-                </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <div class="fs-2 fw-bold text-warning">{{ pending_team_count }}</div>
+                <div class="text-muted small text-uppercase mt-1">Pending Teams</div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-body d-flex align-items-center gap-3">
-                <div class="bg-warning text-dark rounded-3 p-3">
-                    <i class="fas fa-users fs-4"></i>
-                </div>
-                <div>
-                    <div class="text-muted small text-uppercase">Pending Teams</div>
-                </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <div class="fs-2 fw-bold text-success">{{ total_teams }}</div>
+                <div class="text-muted small text-uppercase mt-1">Approved Teams</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <div class="fs-2 fw-bold text-trlm-navy">{{ active_seasons|length }}</div>
+                <div class="text-muted small text-uppercase mt-1">Active Seasons</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Quick actions -->
-<h5 class="fw-bold text-uppercase mb-3">Quick Actions</h5>
-<div class="d-flex flex-wrap gap-3">
-    <a href="{% url 'seasons_list_view' %}" class="btn btn-trlm-navy">
-        <i class="fas fa-calendar me-2"></i>Manage Seasons
-    </a>
-    <a href="#" class="btn btn-trlm-navy">
-        <i class="fas fa-users me-2"></i>Manage Teams
-    </a>
-    <a href="#" class="btn btn-trlm-navy">
-        <i class="fas fa-random me-2"></i>Generate Fixtures
-    </a>
-    <a href="{% url 'interest_list' %}" class="btn btn-outline-secondary">
-        <i class="fas fa-clipboard me-2"></i>Pending Interests
-        {% if pending_interest_count %}
-        <span class="badge bg-danger ms-1">{{ pending_interest_count }}</span>
-        {% endif %}
-    </a>
+<!-- Manage section -->
+<h5 class="fw-bold text-uppercase mb-3">Manage</h5>
+<div class="row g-3 mb-5">
+
+    <div class="col-md-4">
+        <a href="{% url 'interest_list' %}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body d-flex align-items-center gap-3 p-4">
+                    <div class="bg-trlm-navy text-white rounded-3 p-3 flex-shrink-0">
+                        <i class="fas fa-clipboard-list fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Interest Registrations</div>
+                        <div class="text-muted small">Review and approve new teams</div>
+                    </div>
+                    {% if pending_interest_count %}
+                    <span class="badge bg-danger ms-auto">{{ pending_interest_count }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a href="{% url 'seasons_list_view' %}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body d-flex align-items-center gap-3 p-4">
+                    <div class="bg-success text-white rounded-3 p-3 flex-shrink-0">
+                        <i class="fas fa-calendar-alt fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Seasons</div>
+                        <div class="text-muted small">Create seasons and manage fixtures</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a href="{% url 'teams_list_view' %}" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 card-hover">
+                <div class="card-body d-flex align-items-center gap-3 p-4">
+                    <div class="bg-warning text-dark rounded-3 p-3 flex-shrink-0">
+                        <i class="fas fa-users fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Teams</div>
+                        <div class="text-muted small">View and approve team registrations</div>
+                    </div>
+                    {% if pending_team_count %}
+                    <span class="badge bg-danger ms-auto">{{ pending_team_count }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+    </div>
+
 </div>
+
+<!-- Active seasons -->
+{% if active_seasons %}
+<h5 class="fw-bold text-uppercase mb-3">Active Seasons</h5>
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+            {% for season in active_seasons %}
+            <li class="list-group-item px-4 py-3 d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="fw-semibold">{{ season.name }}</span>
+                    <span class="text-muted small ms-2">{{ season.get_venue_display }}</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'season_detail' season_id=season.pk %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-cog me-1"></i>Manage
+                    </a>
+                    <a href="{% url 'fixture_list' season_id=season.pk %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-list me-1"></i>Fixtures
+                    </a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
 
 {% endblock %}

@@ -28,23 +28,20 @@ def generate_fixtures(season):
         raise ValueError("At least 2 approved teams are required to generate fixtures.")
     if Match.objects.filter(season=season).exists():
         raise ValueError("Fixtures have already been generated for this season.")
-    rounds = generate_round_robin(teams)
-    num_rounds = len(rounds)
-    for round_num, matches in enumerate(rounds, start=1):
-        for team_a, team_b in matches:
+
+    # Build an infinite cycle of rounds (single then reversed for home/away)
+    single = generate_round_robin(teams)
+    double = [(team_b, team_a) for _, pairs in enumerate(single) for team_b, team_a in [p for p in pairs]]
+    all_rounds = single + [[(b, a) for a, b in r] for r in single]
+
+    for round_num in range(1, season.num_rounds + 1):
+        # Cycle through available rounds if num_rounds exceeds the natural round-robin length
+        round_matches = all_rounds[(round_num - 1) % len(all_rounds)]
+        for team_a, team_b in round_matches:
             Match.objects.create(
                 season=season,
                 team_a=team_a,
                 team_b=team_b,
-                round_number=round_num,
-                match_type="regular",
-            )
-    for round_num, matches in enumerate(rounds, start=num_rounds + 1):
-        for team_a, team_b in matches:
-            Match.objects.create(
-                season=season,
-                team_a=team_b,
-                team_b=team_a,
                 round_number=round_num,
                 match_type="regular",
             )

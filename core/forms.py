@@ -19,6 +19,14 @@ class InterestRegistrationForm(forms.ModelForm):
             "message",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.is_bound:
+            for field_name, field in self.fields.items():
+                if self.errors.get(field_name):
+                    css = field.widget.attrs.get("class", "")
+                    field.widget.attrs["class"] = f"{css} is-invalid".strip()
+
     def clean(self):
         cleaned_data = super().clean()
         is_mixed = cleaned_data.get("is_mixed")

@@ -5,6 +5,8 @@ from .views import (
     season_edit,
     season_delete,
     season_detail,
+    add_time_slot,
+    delete_time_slot,
 )
 
 urlpatterns = [
@@ -13,4 +15,6 @@ urlpatterns = [
     path("seasons/<int:season_id>/", season_detail, name="season_detail"),
     path("seasons/<int:season_id>/edit/", season_edit, name="season_edit"),
     path("seasons/<int:season_id>/delete/", season_delete, name="season_delete"),
+    path("seasons/<int:season_id>/timeslots/add/", add_time_slot, name="add_time_slot"),
+    path("seasons/<int:season_id>/timeslots/<int:slot_id>/delete/", delete_time_slot, name="delete_time_slot"),
 ]

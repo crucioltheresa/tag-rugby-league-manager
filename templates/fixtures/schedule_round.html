@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+
+        <h2 class="fw-bold text-uppercase mb-1">Schedule Round {{ round_number }}</h2>
+        <p class="text-muted mb-1">{{ season.name }}</p>
+        <div class="border-bottom border-success border-3 mb-4 w-25"></div>
+
+        {% if not time_slots %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            No kickoff times configured for this season. Add time slots in the season settings first.
+        </div>
+        {% endif %}
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">{{ form.date.label }}</label>
+                        {{ form.date }}
+                    </div>
+
+                    <h6 class="fw-semibold text-uppercase text-muted mb-2">Slot Preview</h6>
+                    <p class="text-muted small mb-3">
+                        Assigned in order across {{ season.num_pitches }} pitch{{ season.num_pitches|pluralize }}
+                        and {{ time_slots|length }} kickoff time{{ time_slots|length|pluralize }}.
+                    </p>
+
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered align-middle small mb-0">
+                            <thead class="table-light text-muted text-uppercase">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Match</th>
+                                    <th>Kickoff</th>
+                                    <th>Pitch</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ms in match_slots %}
+                                <tr>
+                                    <td class="text-muted">{{ forloop.counter }}</td>
+                                    <td class="fw-semibold">{{ ms.match.team_a.name }} vs {{ ms.match.team_b.name }}</td>
+                                    <td>{% if ms.time %}{{ ms.time }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                                    <td>{{ ms.pitch }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'fixture_list' season_id=season.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-trlm-pink px-4" {% if not time_slots %}disabled{% endif %}>
+                            Save Schedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

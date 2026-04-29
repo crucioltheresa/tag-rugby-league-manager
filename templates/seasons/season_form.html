@@ -49,6 +49,14 @@
                             <label class="form-label fw-semibold">{{ form.end_date.label }}</label>
                             {{ form.end_date }}
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.num_rounds.label }}</label>
+                            {{ form.num_rounds }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.num_pitches.label }}</label>
+                            {{ form.num_pitches }}
+                        </div>
                     </div>
                     <div class="d-flex justify-content-between mt-4">
                         <a href="{% url 'seasons_list_view' %}" class="btn btn-outline-secondary">Cancel</a>

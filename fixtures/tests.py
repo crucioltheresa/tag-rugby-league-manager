@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse
 
 from accounts.models import User
 from seasons.models import Season
@@ -18,6 +19,9 @@ class FixtureGenerationSetupMixin:
             start_date="2026-01-01",
             end_date="2026-12-31",
             status="active",
+            venue="irishtown",
+            num_rounds=6,
+            num_pitches=2,
         )
         self.teams = []
         for i in range(4):
@@ -41,6 +45,28 @@ class FixtureGenerationSetupMixin:
                 status="approved",
             )
             self.teams.append(team)
+
+
+class FixtureAccessTests(FixtureGenerationSetupMixin, TestCase):
+
+    def test_unauthenticated_user_redirected_to_login(self):
+        url = reverse("fixture_list", kwargs={"season_id": self.season.pk})
+        response = self.client.get(url)
+        self.assertRedirects(response, f"{reverse('account_login')}?next={url}")
+
+    def test_correct_fixtures_returned_for_active_season(self):
+        generate_fixtures(self.season)
+        self.client.force_login(self.admin)
+        response = self.client.get(
+            reverse("fixture_list", kwargs={"season_id": self.season.pk})
+        )
+        self.assertEqual(response.status_code, 200)
+        rounds = response.context["rounds"]
+        total_matches = sum(len(r["matches"]) for r in rounds)
+        self.assertEqual(total_matches, Match.objects.filter(season=self.season).count())
+        for r in rounds:
+            for match in r["matches"]:
+                self.assertEqual(match.season, self.season)
 
 
 class FixtureGenerationTests(FixtureGenerationSetupMixin, TestCase):

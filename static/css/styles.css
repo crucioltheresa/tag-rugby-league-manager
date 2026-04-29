@@ -84,3 +84,29 @@
 .feature-card {
     border-left: 4px solid var(--trlm-green);
 }
+
+/* Clickable cards */
+.card-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+}
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Text colours */
+.text-trlm-navy {
+    color: var(--trlm-navy) !important;
+}
+
+.btn-trlm-navy {
+    background-color: var(--trlm-navy) !important;
+    color: #fff !important;
+    font-weight: 600;
+    border: none;
+}
+.btn-trlm-navy:hover {
+    background-color: #1e3350 !important;
+    color: #fff !important;
+}

@@ -22,13 +22,64 @@
                 <p class="text-muted small text-uppercase fw-semibold mb-1">End Date</p>
                 <p class="fw-bold">{{ season.end_date }}</p>
             </div>
-            {% if season.venue %}
             <div class="col-md-12">
                 <p class="text-muted small text-uppercase fw-semibold mb-1">Venue</p>
-                <p class="fw-bold">{{ season.venue }}</p>
+                <p class="fw-bold">{{ season.get_venue_display }}</p>
             </div>
-            {% endif %}
         </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <p class="text-muted small text-uppercase fw-semibold mb-1">Rounds</p>
+                <p class="fw-bold">{{ season.num_rounds }}</p>
+            </div>
+            <div class="col-md-6">
+                <p class="text-muted small text-uppercase fw-semibold mb-1">Pitches</p>
+                <p class="fw-bold">{{ season.num_pitches }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="fw-semibold text-uppercase text-muted mb-2">Kickoff Times</h5>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        {% if time_slots %}
+        <ul class="list-group list-group-flush mb-3">
+            {% for slot in time_slots %}
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span class="fw-semibold">{{ slot.time }}</span>
+                <form method="post" action="{% url 'delete_time_slot' season_id=season.pk slot_id=slot.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted small mb-3">No kickoff times added yet.</p>
+        {% endif %}
+
+        <form method="post" action="{% url 'add_time_slot' season_id=season.pk %}" class="d-flex gap-2 align-items-end">
+            {% csrf_token %}
+            <div>
+                <label class="form-label fw-semibold small">Add Kickoff Time</label>
+                {{ timeslot_form.time }}
+            </div>
+            <div>
+                <label class="form-label fw-semibold small">Order</label>
+                {{ timeslot_form.order }}
+            </div>
+            <button type="submit" class="btn btn-trlm-navy btn-sm">
+                <i class="fas fa-plus me-1"></i>Add
+            </button>
+        </form>
     </div>
 </div>
 
@@ -39,9 +90,18 @@
     <a href="{% url 'season_delete' season.pk %}" class="btn btn-danger">
         <i class="fas fa-trash me-1"></i>Delete
     </a>
-    <a href="#" class="btn btn-outline-secondary">
+    {% if has_fixtures %}
+    <a href="{% url 'fixture_list' season_id=season.pk %}" class="btn btn-outline-secondary">
+        <i class="fas fa-list me-1"></i>View Fixtures
+    </a>
+    <a href="{% url 'delete_fixtures' season_id=season.pk %}" class="btn btn-outline-danger">
+        <i class="fas fa-trash me-1"></i>Delete Fixtures
+    </a>
+    {% else %}
+    <a href="{% url 'generate_fixtures' season_id=season.pk %}" class="btn btn-outline-secondary">
         <i class="fas fa-random me-1"></i>Generate Fixtures
     </a>
+    {% endif %}
     <a href="{% url 'seasons_list_view' %}" class="btn btn-outline-secondary ms-auto">
         <i class="fas fa-arrow-left me-1"></i>Back to Seasons
     </a>
