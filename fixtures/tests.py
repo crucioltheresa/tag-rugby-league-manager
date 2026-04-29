@@ -90,3 +90,46 @@ class FixtureGenerationTests(FixtureGenerationSetupMixin, TestCase):
         with self.assertRaises(ValueError) as ctx:
             generate_fixtures(self.season)
         self.assertIn("already been generated", str(ctx.exception))
+
+
+class MyFixturesTests(FixtureGenerationSetupMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        generate_fixtures(self.season)
+        self.team = self.teams[0]
+        self.captain = self.team.captain
+        self.vice_captain = self.team.vice_captain
+
+    def test_vice_captain_sees_same_fixtures_as_captain(self):
+        self.client.force_login(self.captain)
+        captain_response = self.client.get(reverse("my_fixtures"))
+        self.assertEqual(captain_response.status_code, 200)
+        captain_ids = {m.id for m in captain_response.context["matches"]}
+
+        self.client.force_login(self.vice_captain)
+        vice_response = self.client.get(reverse("my_fixtures"))
+        self.assertEqual(vice_response.status_code, 200)
+        vice_ids = {m.id for m in vice_response.context["matches"]}
+
+        self.assertEqual(captain_ids, vice_ids)
+        self.assertGreater(len(captain_ids), 0)
+
+
+class ICSTests(FixtureGenerationSetupMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        generate_fixtures(self.season)
+        self.match = Match.objects.filter(season=self.season).first()
+        self.match.date = "2026-05-01"
+        self.match.time = "18:00:00"
+        self.match.save()
+
+    def test_ics_returns_200_with_calendar_content_type(self):
+        self.client.force_login(self.teams[0].captain)
+        response = self.client.get(
+            reverse("calendar_match", kwargs={"fixture_id": self.match.id})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/calendar", response["Content-Type"])

@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
 from django.db import models
 from itertools import groupby
 from .utils import generate_fixtures
 from .forms import MatchForm, ScheduleRoundForm, BulkScheduleForm
 from datetime import timedelta
-import json
 from seasons.models import Season
 from teams.models import Team
 from .models import Match
@@ -17,7 +17,9 @@ from .models import Match
 def my_fixtures(request):
     team = (
         Team.objects.filter(captain=request.user, season__status="active").first()
-        or Team.objects.filter(vice_captain=request.user, season__status="active").first()
+        or Team.objects.filter(
+            vice_captain=request.user, season__status="active"
+        ).first()
     )
     if not team:
         messages.error(request, "You are not assigned to a team in an active season.")
@@ -29,15 +31,15 @@ def my_fixtures(request):
         .order_by("round_number", "date", "time")
         .select_related("team_a", "team_b")
     )
-    rounds = [
-        {"round_number": rn, "matches": list(group)}
-        for rn, group in groupby(matches, key=lambda m: m.round_number)
-    ]
-    return render(request, "fixtures/my_fixtures.html", {
-        "team": team,
-        "season": team.season,
-        "rounds": rounds,
-    })
+    return render(
+        request,
+        "fixtures/my_fixtures.html",
+        {
+            "team": team,
+            "season": team.season,
+            "matches": matches,
+        },
+    )
 
 
 @login_required
@@ -61,12 +63,18 @@ def delete_fixtures(request, season_id):
     match_count = Match.objects.filter(season=season).count()
     if request.method == "POST":
         Match.objects.filter(season=season).delete()
-        messages.success(request, f"All {match_count} fixtures for {season.name} have been deleted.")
+        messages.success(
+            request, f"All {match_count} fixtures for {season.name} have been deleted."
+        )
         return redirect("season_detail", season_id=season_id)
-    return render(request, "fixtures/confirm_delete_fixtures.html", {
-        "season": season,
-        "match_count": match_count,
-    })
+    return render(
+        request,
+        "fixtures/confirm_delete_fixtures.html",
+        {
+            "season": season,
+            "match_count": match_count,
+        },
+    )
 
 
 @login_required
@@ -75,12 +83,13 @@ def current_fixtures(request):
     if request.user.role in ("captain", "vice_captain"):
         team = (
             Team.objects.filter(captain=request.user, season__status="active").first()
-            or Team.objects.filter(vice_captain=request.user, season__status="active").first()
+            or Team.objects.filter(
+                vice_captain=request.user, season__status="active"
+            ).first()
         )
         if team:
             return redirect("fixture_list", season_id=team.season_id)
 
-    # Admin and everyone else: first active season, or seasons list if none
     season = Season.objects.filter(status="active").first()
     if season:
         return redirect("fixture_list", season_id=season.id)
@@ -98,34 +107,26 @@ def fixture_list(request, season_id):
     season = get_object_or_404(Season, id=season_id)
     matches = list(
         Match.objects.filter(season=season)
-        .order_by("round_number", "date", "time")
+        .order_by("date", "time", "round_number")
         .select_related("team_a", "team_b")
     )
-    rounds = [
-        {"round_number": rn, "matches": list(group)}
-        for rn, group in groupby(matches, key=lambda m: m.round_number)
+    scheduled = [m for m in matches if m.date]
+    unscheduled = [m for m in matches if not m.date]
+
+    date_groups = [
+        {"date": d, "matches": list(group)}
+        for d, group in groupby(scheduled, key=lambda m: m.date)
     ]
-    color_map = {"played": "#2d5c1a", "cancelled": "#dc3545", "scheduled": "#6c757d"}
-    calendar_events = json.dumps([
+    return render(
+        request,
+        "fixtures/fixtures_list.html",
         {
-            "title": f"R{m.round_number}: {m.team_a.name} vs {m.team_b.name}",
-            "start": (
-                f"{m.date}T{m.time}" if m.time else str(m.date)
-            ),
-            "color": color_map.get(m.status, "#6c757d"),
-            "extendedProps": {
-                "round": m.round_number,
-                "status": m.get_status_display(),
-                "pitch": m.pitch or "—",
-            },
-        }
-        for m in matches if m.date
-    ])
-    return render(request, "fixtures/fixtures_list.html", {
-        "season": season,
-        "rounds": rounds,
-        "calendar_events": calendar_events,
-    })
+            "season": season,
+            "date_groups": date_groups,
+            "unscheduled": unscheduled,
+            "has_matches": bool(matches),
+        },
+    )
 
 
 @login_required
@@ -169,16 +170,24 @@ def schedule_round(request, season_id, round_number):
         for p in range(1, season.num_pitches + 1)
     ]
     match_slots = [
-        {"match": m, "time": slots[i][0] if i < len(slots) else None, "pitch": slots[i][1] if i < len(slots) else "—"}
+        {
+            "match": m,
+            "time": slots[i][0] if i < len(slots) else None,
+            "pitch": slots[i][1] if i < len(slots) else "—",
+        }
         for i, m in enumerate(matches)
     ]
-    return render(request, "fixtures/schedule_round.html", {
-        "form": form,
-        "season": season,
-        "round_number": round_number,
-        "match_slots": match_slots,
-        "time_slots": time_slots,
-    })
+    return render(
+        request,
+        "fixtures/schedule_round.html",
+        {
+            "form": form,
+            "season": season,
+            "round_number": round_number,
+            "match_slots": match_slots,
+            "time_slots": time_slots,
+        },
+    )
 
 
 @login_required
@@ -209,7 +218,9 @@ def bulk_schedule(request, season_id):
 
             for round_number in round_numbers:
                 matches = list(
-                    Match.objects.filter(season=season, round_number=round_number).order_by("id")
+                    Match.objects.filter(
+                        season=season, round_number=round_number
+                    ).order_by("id")
                 )
                 if not overwrite and matches[0].date:
                     continue
@@ -230,14 +241,54 @@ def bulk_schedule(request, season_id):
     preview = [
         {
             "round_number": rn,
-            "already_scheduled": Match.objects.filter(season=season, round_number=rn).exclude(date=None).exists(),
+            "already_scheduled": Match.objects.filter(season=season, round_number=rn)
+            .exclude(date=None)
+            .exists(),
         }
         for rn in round_numbers
     ]
 
-    return render(request, "fixtures/bulk_schedule.html", {
-        "form": form,
-        "season": season,
-        "preview": preview,
-        "has_time_slots": bool(time_slots),
-    })
+    return render(
+        request,
+        "fixtures/bulk_schedule.html",
+        {
+            "form": form,
+            "season": season,
+            "preview": preview,
+            "has_time_slots": bool(time_slots),
+        },
+    )
+
+
+@login_required
+def ics_match(request, fixture_id):
+    match = get_object_or_404(Match, id=fixture_id)
+
+    from datetime import datetime, timedelta
+
+    if match.date and match.time:
+        start = datetime.combine(match.date, match.time)
+    elif match.date:
+        start = datetime.combine(match.date, match.min.time())
+    else:
+        messages.error(request, "This match has no date scheduled yet.")
+        return redirect("captain_dashboard")
+
+    end = start + timedelta(hours=1)
+
+    ics_content = f"""BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//TRLM//Tag Rugby//EN
+BEGIN:VEVENT
+UID:match-{match.id}@trlm
+SUMMARY:{match.team_a.name} vs {match.team_b.name} - Round {match.round_number}
+DTSTART:{start.strftime("%Y%m%dT%H%M%S")}
+DTEND:{end.strftime("%Y%m%dT%H%M%S")}
+LOCATION:{match.season.get_venue_display()}
+DESCRIPTION:{match.season.name}
+END:VEVENT
+END:VCALENDAR"""
+
+    response = HttpResponse(ics_content, content_type="text/calendar")
+    response["Content-Disposition"] = f'attachment; filename="match_{match.id}.ics"'
+    return response

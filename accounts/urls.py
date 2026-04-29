@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import admin_dashboard_view, CustomLoginView, CustomSignupView, CustomLogoutView
+from .views import admin_dashboard_view, captain_dashboard_view, CustomLoginView, CustomSignupView, CustomLogoutView
 
 
 urlpatterns = [
@@ -11,5 +11,10 @@ urlpatterns = [
         "admin-dashboard/",
         admin_dashboard_view,
         name="admin_dashboard",
+    ),
+    path(
+        "dashboard/",
+        captain_dashboard_view,
+        name="captain_dashboard",
     ),
 ]

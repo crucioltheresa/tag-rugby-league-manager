@@ -49,10 +49,10 @@
                     </li>
                     {% elif user.role == "captain" or user.role == "vice_captain" %}
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'current_fixtures' %}">Fixtures</a>
+                        <a class="nav-link px-3" href="{% url 'captain_dashboard' %}">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3" href="{% url 'my_fixtures' %}">My Fixtures</a>
+                        <a class="nav-link px-3" href="{% url 'current_fixtures' %}">Fixtures</a>
                     </li>
                     {% elif user.role == "admin" %}
                     <li class="nav-item">

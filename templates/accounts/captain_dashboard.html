@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-1">Welcome, {{ request.user.first_name }}! <span class="text-muted fs-5 fw-normal">({{ request.user.get_role_display }})</span></h2>
+<p class="text-muted mb-1">Active season: {{ season.name }}</p>
+<div class="border-bottom border-success border-3 mb-4 w-25"></div>
+
+<!-- Summary cards -->
+<div class="row g-3 mb-5">
+
+    <!-- My Team -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 rounded-3">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">My Team</div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="fw-bold fs-5 text-trlm-navy">{{ team.name }}</div>
+                    <span class="badge {% if team.status == 'approved' %}bg-success{% elif team.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                        {{ team.get_status_display }}
+                    </span>
+                </div>
+                <a href="{% url 'team_edit' team_id=team.pk %}" class="btn btn-trlm-navy w-100 mt-auto">
+                    View Team
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Fixture -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 rounded-3">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">Next Fixture</div>
+                {% if next_fixture %}
+                    {% if next_fixture.team_a == team %}
+                        <div class="fw-bold fs-5 text-trlm-navy mb-2">vs {{ next_fixture.team_b.name }}</div>
+                    {% else %}
+                        <div class="fw-bold fs-5 text-trlm-navy mb-2">vs {{ next_fixture.team_a.name }}</div>
+                    {% endif %}
+                    <div class="text-muted small mb-1">{{ next_fixture.date|date:"l, F j, Y" }}</div>
+                    {% if next_fixture.time %}
+                    <div class="text-muted small mb-1">{{ next_fixture.time }}</div>
+                    {% endif %}
+                    <div class="text-muted small mb-3">{{ season.get_venue_display }}</div>
+                    <a href="{% url 'calendar_match' fixture_id=next_fixture.pk %}" class="btn btn-outline-secondary w-100 mt-auto">
+                        <i class="fas fa-calendar-plus me-1"></i>Add to Calendar
+                    </a>
+                {% else %}
+                    <div class="text-muted small">No upcoming fixtures scheduled.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Squad Availability -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 rounded-3">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">Squad Availability</div>
+                <div class="d-flex gap-4 mb-3">
+                    <div>
+                        <div class="fs-3 fw-bold text-success">—</div>
+                        <div class="text-muted" style="font-size:0.75rem;">Available</div>
+                    </div>
+                    <div>
+                        <div class="fs-3 fw-bold text-danger">—</div>
+                        <div class="text-muted" style="font-size:0.75rem;">Unavailable</div>
+                    </div>
+                    <div>
+                        <div class="fs-3 fw-bold text-muted">—</div>
+                        <div class="text-muted" style="font-size:0.75rem;">No Response</div>
+                    </div>
+                </div>
+                <button class="btn btn-trlm-navy w-100 mt-auto" disabled>Coming Soon</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- League Position -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 rounded-3">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">League Position</div>
+                <div class="fw-bold text-trlm-navy mb-1" style="font-size: 3rem; line-height:1;">—</div>
+                <div class="text-muted small mb-3">Points: —</div>
+                <button class="btn btn-trlm-navy w-100 mt-auto" disabled>Coming Soon</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- My Fixtures table -->
+<h5 class="fw-bold text-uppercase mb-3">My Fixtures</h5>
+{% if matches %}
+<div class="card shadow-sm border-0 feature-card rounded-3 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center mb-0">
+            <thead class="small text-uppercase" style="background-color: var(--trlm-green); color: #fff;">
+                <tr>
+                    <th class="ps-4 fw-semibold">Round</th>
+                    <th class="fw-semibold">Team A</th>
+                    <th class="fw-semibold" style="width:80px;">Score</th>
+                    <th class="fw-semibold">Team B</th>
+                    <th class="fw-semibold">Date</th>
+                    <th class="fw-semibold">Time</th>
+                    <th class="fw-semibold">Pitch</th>
+                    <th class="pe-4 fw-semibold">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in matches %}
+                <tr>
+                    <td class="ps-4"><span class="badge fixture-round-badge">R{{ match.round_number }}</span></td>
+                    <td class="fw-semibold {% if match.team_a == team %}text-trlm-navy{% endif %}">{{ match.team_a.name }}</td>
+                    <td>
+                        {% if match.status == 'played' %}
+                            <span class="fw-bold">{{ match.team_a_score }} – {{ match.team_b_score }}</span>
+                        {% else %}
+                            <span class="text-muted">vs</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold {% if match.team_b == team %}text-trlm-navy{% endif %}">{{ match.team_b.name }}</td>
+                    <td class="text-muted small">{% if match.date %}{{ match.date|date:"F j, Y" }}{% else %}—{% endif %}</td>
+                    <td class="text-muted small">{% if match.time %}{{ match.time }}{% else %}—{% endif %}</td>
+                    <td class="text-muted small">{% if match.pitch %}{{ match.pitch }}{% else %}—{% endif %}</td>
+                    <td class="pe-4">
+                        <span class="badge {% if match.status == 'played' %}bg-success{% elif match.status == 'cancelled' %}bg-danger{% else %}fixture-badge-scheduled{% endif %}">
+                            {{ match.get_status_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">No fixtures have been scheduled yet.</div>
+{% endif %}
+
+{% endblock %}

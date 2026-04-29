@@ -3,6 +3,7 @@
     --trlm-navy: #152238;
     --trlm-green: #2d5c1a;
     --trlm-pink: #c4136a;
+    --trlm-gold: #d4a017;
 }
 
 /* Navbar */
@@ -43,8 +44,8 @@
 }
 
 .btn-trlm-gold {
-    background-color: #d4a017 !important;
-    color: #152238 !important;
+    background-color: var(--trlm-gold) !important;
+    color: var(--trlm-navy) !important;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -109,4 +110,47 @@
 .btn-trlm-navy:hover {
     background-color: #1e3350 !important;
     color: #fff !important;
+}
+
+/* Fixture list date header rows */
+.fixture-date-header {
+    background-color: var(--trlm-navy) !important;
+    color: #fff;
+}
+.fixture-date-header td {
+    color: #fff !important;
+}
+.fixture-date-header .btn-outline-light {
+    border-color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.85);
+    padding: 0.1rem 0.45rem;
+    font-size: 0.75rem;
+}
+.fixture-date-header .btn-outline-light:hover {
+    background-color: rgba(255,255,255,0.15);
+    border-color: #fff;
+    color: #fff;
+}
+
+/* Unscheduled section header */
+.fixture-unscheduled-header {
+    background-color: rgba(21, 34, 56, 0.06) !important;
+}
+.fixture-unscheduled-header td {
+    color: var(--trlm-navy) !important;
+}
+
+/* Round pill badge */
+.fixture-round-badge {
+    background-color: var(--trlm-pink);
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+/* "Scheduled/Pending" status badge */
+.fixture-badge-scheduled {
+    background-color: var(--trlm-gold);
+    color: var(--trlm-navy);
+    font-weight: 600;
 }
