@@ -133,3 +133,65 @@ class ICSTests(FixtureGenerationSetupMixin, TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn("text/calendar", response["Content-Type"])
+
+
+class MatchActionTests(FixtureGenerationSetupMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        generate_fixtures(self.season)
+        self.match = Match.objects.filter(season=self.season).first()
+        self.captain = self.teams[0].captain
+
+    # US-15: Edit match
+    def test_valid_edit_saves_date_and_pitch(self):
+        self.client.force_login(self.admin)
+        self.client.post(
+            reverse("edit_match", kwargs={"match_id": self.match.pk}),
+            {"date": "2026-06-01", "time": "18:00", "pitch": "Pitch 2"},
+        )
+        self.match.refresh_from_db()
+        self.assertEqual(str(self.match.date), "2026-06-01")
+        self.assertEqual(self.match.pitch, "Pitch 2")
+
+    def test_non_admin_edit_returns_403(self):
+        self.client.force_login(self.captain)
+        response = self.client.post(
+            reverse("edit_match", kwargs={"match_id": self.match.pk}),
+            {"date": "2026-06-01", "time": "18:00", "pitch": "Pitch 1"},
+        )
+        self.assertEqual(response.status_code, 403)
+
+    # US-16: Record result
+    def test_saving_result_sets_status_to_played(self):
+        self.client.force_login(self.admin)
+        self.client.post(
+            reverse("result_match", kwargs={"match_id": self.match.pk}),
+            {"team_a_score": 3, "team_b_score": 1},
+        )
+        self.match.refresh_from_db()
+        self.assertEqual(self.match.status, "played")
+        self.assertEqual(self.match.team_a_score, 3)
+        self.assertEqual(self.match.team_b_score, 1)
+
+    def test_non_admin_result_returns_403(self):
+        self.client.force_login(self.captain)
+        response = self.client.post(
+            reverse("result_match", kwargs={"match_id": self.match.pk}),
+            {"team_a_score": 3, "team_b_score": 1},
+        )
+        self.assertEqual(response.status_code, 403)
+
+    # US-17: Cancel match
+    def test_cancel_sets_status_to_cancelled(self):
+        self.client.force_login(self.admin)
+        self.client.post(reverse("cancel_match", kwargs={"match_id": self.match.pk}))
+        self.match.refresh_from_db()
+        self.assertEqual(self.match.status, "cancelled")
+
+    def test_non_admin_cancel_returns_403(self):
+        self.client.force_login(self.captain)
+        response = self.client.post(
+            reverse("cancel_match", kwargs={"match_id": self.match.pk})
+        )
+        self.assertEqual(response.status_code, 403)

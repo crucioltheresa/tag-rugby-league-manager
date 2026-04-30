@@ -3,12 +3,16 @@ from .models import Match
 
 
 class MatchForm(forms.ModelForm):
-    date = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}), required=False)
-    time = forms.TimeField(widget=forms.TimeInput(attrs={"type": "time"}), required=False)
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}), required=False
+    )
+    time = forms.TimeField(
+        widget=forms.TimeInput(attrs={"type": "time"}), required=False
+    )
 
     class Meta:
         model = Match
-        fields = ["date", "time"]
+        fields = ["date", "time", "pitch"]
 
 
 class ScheduleRoundForm(forms.Form):
@@ -29,3 +33,9 @@ class BulkScheduleForm(forms.Form):
         required=False,
         label="Overwrite already-scheduled rounds",
     )
+
+
+class MatchResultForm(forms.ModelForm):
+    class Meta:
+        model = Match
+        fields = ["team_a_score", "team_b_score"]

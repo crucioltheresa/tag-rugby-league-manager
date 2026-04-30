@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.db import models
 from itertools import groupby
 from .utils import generate_fixtures
-from .forms import MatchForm, ScheduleRoundForm, BulkScheduleForm
+from .forms import MatchForm, MatchResultForm, ScheduleRoundForm, BulkScheduleForm
 from datetime import timedelta
 from seasons.models import Season
 from teams.models import Team
@@ -262,33 +262,88 @@ def bulk_schedule(request, season_id):
 
 @login_required
 def ics_match(request, fixture_id):
+    from datetime import datetime, time, timedelta
+    from icalendar import Calendar, Event
+
     match = get_object_or_404(Match, id=fixture_id)
 
-    from datetime import datetime, timedelta
-
-    if match.date and match.time:
-        start = datetime.combine(match.date, match.time)
-    elif match.date:
-        start = datetime.combine(match.date, match.min.time())
-    else:
+    if not match.date:
         messages.error(request, "This match has no date scheduled yet.")
         return redirect("captain_dashboard")
 
+    match_time = match.time if match.time else time(0, 0)
+    start = datetime.combine(match.date, match_time)
     end = start + timedelta(hours=1)
 
-    ics_content = f"""BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//TRLM//Tag Rugby//EN
-BEGIN:VEVENT
-UID:match-{match.id}@trlm
-SUMMARY:{match.team_a.name} vs {match.team_b.name} - Round {match.round_number}
-DTSTART:{start.strftime("%Y%m%dT%H%M%S")}
-DTEND:{end.strftime("%Y%m%dT%H%M%S")}
-LOCATION:{match.season.get_venue_display()}
-DESCRIPTION:{match.season.name}
-END:VEVENT
-END:VCALENDAR"""
+    cal = Calendar()
+    cal.add("prodid", "-//TRLM//Tag Rugby//EN")
+    cal.add("version", "2.0")
 
-    response = HttpResponse(ics_content, content_type="text/calendar")
+    event = Event()
+    event.add(
+        "summary",
+        f"{match.team_a.name} vs {match.team_b.name} - Round {match.round_number}",
+    )
+    event.add("dtstart", start)
+    event.add("dtend", end)
+    event.add("location", match.season.get_venue_display())
+    event.add("description", match.season.name)
+    event["uid"] = f"match-{match.id}@trlm"
+
+    cal.add_component(event)
+
+    response = HttpResponse(cal.to_ical(), content_type="text/calendar")
     response["Content-Disposition"] = f'attachment; filename="match_{match.id}.ics"'
     return response
+
+
+@login_required
+def match_edit(request, match_id):
+    if request.user.role != "admin":
+        raise PermissionDenied
+    match = get_object_or_404(Match, id=match_id)
+    if request.method == "POST":
+        form = MatchForm(
+            request.POST,
+            instance=match,
+        )
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your match has been updated successfully!")
+            return redirect("fixture_list", season_id=match.season_id)
+    elif request.method == "GET":
+        form = MatchForm(instance=match)
+    return render(request, "fixtures/match_form.html", {"form": form, "match": match})
+
+
+@login_required
+def match_result(request, match_id):
+    if request.user.role != "admin":
+        raise PermissionDenied
+    match = get_object_or_404(Match, id=match_id)
+    if request.method == "POST":
+        form = MatchResultForm(request.POST, instance=match)
+        if form.is_valid():
+            match = form.save(commit=False)
+            match.status = "played"
+            match.save()
+            messages.success(
+                request, "Score has been added to your match successfully!"
+            )
+            return redirect("fixture_list", season_id=match.season_id)
+    elif request.method == "GET":
+        form = MatchResultForm(instance=match)
+    return render(request, "fixtures/match_result.html", {"form": form, "match": match})
+
+
+@login_required
+def match_cancel(request, match_id):
+    if request.user.role != "admin":
+        raise PermissionDenied
+    match = get_object_or_404(Match, id=match_id)
+    if request.method == "POST":
+        match.status = "cancelled"
+        match.save()
+        messages.success(request, f"Match {match.team_a.name} vs {match.team_b.name} has been cancelled.")
+        return redirect("fixture_list", season_id=match.season_id)
+    return render(request, "fixtures/match_cancel.html", {"match": match})

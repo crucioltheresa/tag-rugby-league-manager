@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+
+        <h2 class="fw-bold text-uppercase mb-1">Cancel Match</h2>
+        <p class="text-muted mb-1">{{ match.team_a.name }} vs {{ match.team_b.name }} — Round {{ match.round_number }}</p>
+        <div class="border-bottom border-success border-3 mb-4 w-25"></div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4">
+                <p class="mb-4">Are you sure you want to cancel this match? This action can be undone by editing the match status.</p>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'fixture_list' season_id=match.season_id %}" class="btn btn-outline-secondary">Go Back</a>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger px-4">Yes, Cancel Match</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
