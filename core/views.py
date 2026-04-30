@@ -8,8 +8,11 @@ from .models import InterestRegistration, EmailWhitelist
 
 # Create your views here.
 def index_view(request):
-    if request.user.is_authenticated and request.user.role == "admin":
-        return redirect("admin_dashboard")
+    if request.user.is_authenticated:
+        if request.user.role == "admin":
+            return redirect("admin_dashboard")
+        if request.user.role in ("captain", "vice_captain"):
+            return redirect("captain_dashboard")
     return render(request, "core/index.html")
 
 

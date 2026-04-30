@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2 class="fw-bold mb-1">Welcome, {{ request.user.first_name }}! <span class="text-muted fs-5 fw-normal">({{ request.user.get_role_display }})</span></h2>
+<h2 class="fw-bold mb-1">Welcome, {{ request.user.username }}! <span class="text-muted fs-5 fw-normal">({{ request.user.get_role_display }})</span></h2>
 <p class="text-muted mb-1">Active season: {{ season.name }}</p>
 <div class="border-bottom border-success border-3 mb-4 w-25"></div>
 
