@@ -5,6 +5,9 @@ from .views import (
     update_team_status,
     team_edit,
     team_delete,
+    squad_list,
+    add_player,
+    remove_player,
 )
 
 urlpatterns = [
@@ -17,4 +20,7 @@ urlpatterns = [
     path("teams/create", team_create, name="team_create"),
     path("teams/<int:team_id>/edit", team_edit, name="team_edit"),
     path("teams/<int:team_id>/delete", team_delete, name="team_delete"),
+    path("teams/squad/", squad_list, name="squad_list"),
+    path("teams/squad/add/", add_player, name="add_player"),
+    path("teams/squad/<int:player_id>/remove/", remove_player, name="remove_player"),
 ]

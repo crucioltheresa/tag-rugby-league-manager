@@ -32,11 +32,17 @@
             <div class="dropdown ms-auto me-2 d-lg-none">
                 <div class="d-flex align-items-center text-white gap-2 dropdown-toggle" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                    {% if user.profile_photo %}
+                    <img src="{{ user.profile_photo.url }}" alt="avatar"
+                        style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    {% else %}
                     <i class="fas fa-user-circle fs-4"></i>
+                    {% endif %}
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><span class="dropdown-item-text fw-semibold">{{ user.username }}</span></li>
                     <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
                     <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
                 </ul>
             </div>
@@ -86,6 +92,9 @@
                     <li class="nav-item">
                         <a class="nav-link px-3" href="{% url 'current_fixtures' %}">Fixtures</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="{% url 'my_fixtures' %}">My Fixtures</a>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
@@ -94,13 +103,20 @@
             <div class="dropdown ms-auto d-none d-lg-block">
                 <div class="d-flex align-items-center text-white gap-2 dropdown-toggle" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                    {% if user.profile_photo %}
+                    <img src="{{ user.profile_photo.url }}" alt="avatar"
+                        style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    {% else %}
                     <i class="fas fa-user-circle fs-4"></i>
+                    {% endif %}
                     <div class="lh-sm">
                         <small class="d-block fw-semibold text-uppercase">{{ user.username }}</small>
                         <small class="text-white-50">Welcome, {{ user.username }}</small>
                     </div>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
                 </ul>
             </div>

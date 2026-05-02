@@ -6,6 +6,7 @@ from .views import (
     schedule_round,
     delete_fixtures,
     my_fixtures,
+    set_availability,
     bulk_schedule,
     ics_match,
     match_edit,
@@ -35,14 +36,5 @@ urlpatterns = [
     path(
         "fixtures/<int:season_id>/bulk-schedule/", bulk_schedule, name="bulk_schedule"
     ),
-    # path(
-    #     "fixtures/<id>/availability/",
-    #     match_availability_summary,
-    #     name="match_availability_summary",
-    # ),
-    # path(
-    #     "fixtures/<id>/availability/confirm/",
-    #     confirm_availability,
-    #     name="confirm_availability",
-    # ),
+    path("fixtures/<int:match_id>/availability/", set_availability, name="set_availability"),
 ]

@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from allauth.account.views import LoginView, SignupView, LogoutView
-from .forms import CustomSignupForm
+from .forms import CustomSignupForm, ProfileForm
 from core.models import InterestRegistration
 from seasons.models import Season
 from teams.models import Team
@@ -24,7 +25,6 @@ class CustomLogoutView(LogoutView):
     template_name = "accounts/logout.html"
 
 
-# Create your views here.
 @login_required
 def admin_dashboard_view(request):
     if request.user.role != "admin":
@@ -76,6 +76,36 @@ def captain_dashboard_view(request):
             league_points = row["standing"].points
             break
 
+    from teams.models import Player
+    from fixtures.models import PlayerAvailability
+    registered_players = Player.objects.filter(team=team, registered=True).select_related("user")
+
+    avail_map = {}
+    if next_fixture:
+        avail_map = {
+            a.player_id: a.status
+            for a in PlayerAvailability.objects.filter(match=next_fixture)
+        }
+
+    squad_availability = []
+    for p in registered_players:
+        parts = p.name.strip().split()
+        initials = (parts[0][0] + (parts[1][0] if len(parts) > 1 else "")).upper()
+        gender = p.user.gender if p.user else ""
+        status = avail_map.get(p.id)
+        squad_availability.append({
+            "name": p.name,
+            "initials": initials,
+            "gender": gender,
+            "status": status,
+        })
+
+    in_count = sum(1 for p in squad_availability if p["status"] == "in")
+    out_count = sum(1 for p in squad_availability if p["status"] == "out")
+    no_reply_count = sum(1 for p in squad_availability if p["status"] is None)
+    male_in = sum(1 for p in squad_availability if p["status"] == "in" and p["gender"] == "male")
+    female_in = sum(1 for p in squad_availability if p["status"] == "in" and p["gender"] == "female")
+
     return render(request, "accounts/captain_dashboard.html", {
         "team": team,
         "season": team.season,
@@ -85,4 +115,23 @@ def captain_dashboard_view(request):
         "league_position": league_position,
         "league_points": league_points,
         "total_teams": len(all_standings),
+        "squad_availability": squad_availability,
+        "in_count": in_count,
+        "out_count": out_count,
+        "no_reply_count": no_reply_count,
+        "male_in": male_in,
+        "female_in": female_in,
     })
+
+
+@login_required
+def profile_view(request):
+    if request.method == "POST":
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect("profile")
+    else:
+        form = ProfileForm(instance=request.user)
+    return render(request, "accounts/profile.html", {"form": form})

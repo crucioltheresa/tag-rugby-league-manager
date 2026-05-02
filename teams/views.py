@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db import models
 from seasons.models import Season
-from .models import Team
-from .forms import TeamRegistrationForm
+from core.models import EmailWhitelist
+from .models import Team, Player
+from .forms import TeamRegistrationForm, AddPlayerForm
 
 
 # Create your views here.
@@ -85,3 +87,70 @@ def team_delete(request, team_id):
         messages.success(request, "Your team has been deleted successfully!")
         return redirect("home")
     return render(request, "teams/team_confirm_delete.html", {"team": team})
+
+
+@login_required
+def add_player(request):
+    if request.user.role not in ("captain", "vice_captain"):
+        raise PermissionDenied
+    active_season = Season.objects.filter(status="active").first()
+    if not active_season:
+        messages.error(request, "No active season.")
+        return redirect("home")
+    team = (
+        Team.objects.filter(season=active_season)
+        .filter(models.Q(captain=request.user) | models.Q(vice_captain=request.user))
+        .first()
+    )
+    if not team:
+        messages.error(request, "You don't have a team for the active season.")
+        return redirect("home")
+    if request.method == "POST":
+        form = AddPlayerForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            name = form.cleaned_data["name"]
+            if Player.objects.filter(team=team, email=email).exists():
+                messages.error(request, "That player is already in your squad.")
+                return render(request, "teams/add_player.html", {"form": form})
+            Player.objects.create(team=team, email=email, name=name)
+            EmailWhitelist.objects.get_or_create(
+                email=email, defaults={"source": "captain"}
+            )
+            messages.success(request, f"{name} added to your squad.")
+            return redirect("squad_list")
+    else:
+        form = AddPlayerForm()
+    return render(request, "teams/add_player.html", {"form": form})
+
+
+@login_required
+def squad_list(request):
+    if request.user.role not in ("captain", "vice_captain"):
+        raise PermissionDenied
+    active_season = Season.objects.filter(status="active").first()
+    if not active_season:
+        messages.error(request, "No active season.")
+        return redirect("home")
+    team = (
+        Team.objects.filter(season=active_season)
+        .filter(models.Q(captain=request.user) | models.Q(vice_captain=request.user))
+        .first()
+    )
+    if not team:
+        messages.error(request, "You don't have a team for the active season.")
+        return redirect("home")
+    players = Player.objects.filter(team=team).select_related("user").order_by("-registered", "name")
+    return render(request, "teams/squad_list.html", {"team": team, "players": players})
+
+
+@login_required
+def remove_player(request, player_id):
+    player = get_object_or_404(Player, id=player_id)
+    if request.user not in (player.team.captain, player.team.vice_captain):
+        raise PermissionDenied
+    if request.method == "POST":
+        if not player.user:
+            EmailWhitelist.objects.filter(email=player.email).delete()
+        player.delete()
+    return redirect("squad_list")

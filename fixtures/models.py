@@ -41,3 +41,15 @@ class Match(models.Model):
 
     def __str__(self):
         return f"{self.team_a} vs {self.team_b} (Round {self.round_number}, {self.season})"
+
+
+class PlayerAvailability(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name="availability")
+    player = models.ForeignKey("teams.Player", on_delete=models.CASCADE, related_name="availability")
+    status = models.CharField(max_length=3, choices=[("in", "In"), ("out", "Out")])
+
+    class Meta:
+        unique_together = [("match", "player")]
+
+    def __str__(self):
+        return f"{self.player.name} — {self.match} — {self.status}"

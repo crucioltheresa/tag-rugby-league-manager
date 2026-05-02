@@ -14,3 +14,12 @@ class User(AbstractUser):
         ],
         default="captain",
     )
+    gender = models.CharField(
+        max_length=20,
+        choices=[
+            ("male", "Male"),
+            ("female", "Female"),
+        ],
+        blank=True,
+    )
+    profile_photo = models.ImageField(upload_to="profile_photos/", null=True, blank=True)

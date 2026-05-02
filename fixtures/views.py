@@ -10,18 +10,27 @@ from .forms import MatchForm, MatchResultForm, ScheduleRoundForm, BulkScheduleFo
 from datetime import timedelta
 from seasons.models import Season
 from teams.models import Team
-from .models import Match
+from .models import Match, PlayerAvailability
+from teams.models import Player
 from standings.utils import update_standings
 
 
 @login_required
 def my_fixtures(request):
+    player_record = None
     team = (
         Team.objects.filter(captain=request.user, season__status="active").first()
-        or Team.objects.filter(
-            vice_captain=request.user, season__status="active"
-        ).first()
+        or Team.objects.filter(vice_captain=request.user, season__status="active").first()
     )
+    if not team:
+        player_record = (
+            Player.objects.filter(user=request.user, registered=True, team__season__status="active")
+            .select_related("team__season")
+            .first()
+        )
+        if player_record:
+            team = player_record.team
+
     if not team:
         messages.error(request, "You are not assigned to a team in an active season.")
         return redirect("home")
@@ -32,15 +41,47 @@ def my_fixtures(request):
         .order_by("round_number", "date", "time")
         .select_related("team_a", "team_b")
     )
-    return render(
-        request,
-        "fixtures/my_fixtures.html",
-        {
-            "team": team,
-            "season": team.season,
-            "matches": matches,
-        },
+
+    avail_map = {}
+    if player_record:
+        avail_map = {
+            a.match_id: a.status
+            for a in PlayerAvailability.objects.filter(player=player_record)
+        }
+
+    match_rows = [
+        {"match": m, "my_status": avail_map.get(m.id)}
+        for m in matches
+    ]
+
+    return render(request, "fixtures/my_fixtures.html", {
+        "team": team,
+        "season": team.season,
+        "match_rows": match_rows,
+        "is_player": player_record is not None,
+    })
+
+
+@login_required
+def set_availability(request, match_id):
+    if request.method != "POST":
+        return redirect("my_fixtures")
+    match = get_object_or_404(Match, id=match_id)
+    player_record = (
+        Player.objects.filter(user=request.user, registered=True)
+        .filter(models.Q(team=match.team_a) | models.Q(team=match.team_b))
+        .first()
     )
+    if not player_record:
+        messages.error(request, "You are not a registered player for this match.")
+        return redirect("my_fixtures")
+    status = request.POST.get("status")
+    if status not in ("in", "out"):
+        return redirect("my_fixtures")
+    PlayerAvailability.objects.update_or_create(
+        match=match, player=player_record, defaults={"status": status}
+    )
+    return redirect("my_fixtures")
 
 
 @login_required

@@ -7,6 +7,7 @@ from core.models import EmailWhitelist
 class CustomAccountAdapter(DefaultAccountAdapter):
 
     def save_user(self, request, user, form, commit=True):
+        from teams.models import Player
         email = form.cleaned_data.get("email")
         try:
             whitelist_entry = EmailWhitelist.objects.get(email=email, used=False)
@@ -21,6 +22,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         else:
             user.role = "player"
         user.save()
+        Player.objects.filter(email=user.email, registered=False).update(user=user, registered=True)
         return user
 
     def clean_email(self, email):

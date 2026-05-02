@@ -5,7 +5,7 @@ from accounts.models import User
 
 # Create your models here.
 class Team(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     season = models.ForeignKey(
         Season,
@@ -33,3 +33,14 @@ class Team(models.Model):
 
     class Meta:
         unique_together = [("season", "captain")]
+
+
+class Player(models.Model):
+    id = models.AutoField(primary_key=True)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="user"
+    )
+    email = models.EmailField(unique=True)
+    name = models.CharField(max_length=100)
+    registered = models.BooleanField(default=False)

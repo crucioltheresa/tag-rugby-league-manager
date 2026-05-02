@@ -19,3 +19,8 @@ class TeamRegistrationForm(forms.ModelForm):
         self.fields["vice_captain"].queryset = User.objects.exclude(id=user.id).filter(
             email__in=whitelisted_emails
         )
+
+
+class AddPlayerForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    email = forms.EmailField()

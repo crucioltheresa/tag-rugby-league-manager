@@ -13,7 +13,7 @@
 </div>
 <div class="border-bottom border-success border-3 mb-4 w-25"></div>
 
-{% if matches %}
+{% if match_rows %}
 <div class="card shadow-sm border-0 feature-card rounded-3 overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover align-middle text-center mb-0">
@@ -26,11 +26,13 @@
                     <th class="fw-semibold">Date</th>
                     <th class="fw-semibold">Time</th>
                     <th class="fw-semibold">Pitch</th>
-                    <th class="pe-4 fw-semibold">Status</th>
+                    <th class="fw-semibold">Status</th>
+                    {% if is_player %}<th class="pe-4 fw-semibold">Availability</th>{% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for match in matches %}
+                {% for row in match_rows %}
+                {% with match=row.match %}
                 <tr>
                     <td class="ps-4"><span class="badge fixture-round-badge">R{{ match.round_number }}</span></td>
                     <td class="fw-semibold {% if match.team_a == team %}text-trlm-navy{% endif %}">{{ match.team_a.name }}</td>
@@ -45,12 +47,39 @@
                     <td class="text-muted small">{% if match.date %}{{ match.date|date:"F j, Y" }}{% else %}—{% endif %}</td>
                     <td class="text-muted small">{% if match.time %}{{ match.time }}{% else %}—{% endif %}</td>
                     <td class="text-muted small">{% if match.pitch %}{{ match.pitch }}{% else %}—{% endif %}</td>
-                    <td class="pe-4">
+                    <td>
                         <span class="badge {% if match.status == 'played' %}bg-success{% elif match.status == 'cancelled' %}bg-danger{% else %}fixture-badge-scheduled{% endif %}">
                             {{ match.get_status_display }}
                         </span>
                     </td>
+                    {% if is_player %}
+                    <td class="pe-4">
+                        {% if match.status == 'scheduled' %}
+                        <div class="d-flex justify-content-center gap-1">
+                            <form method="post" action="{% url 'set_availability' match_id=match.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="in">
+                                <button type="submit"
+                                    class="btn btn-sm {% if row.my_status == 'in' %}btn-success{% else %}btn-outline-success{% endif %}">
+                                    In
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'set_availability' match_id=match.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="out">
+                                <button type="submit"
+                                    class="btn btn-sm {% if row.my_status == 'out' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                                    Out
+                                </button>
+                            </form>
+                        </div>
+                        {% else %}
+                        <span class="text-muted small">—</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
                 </tr>
+                {% endwith %}
                 {% endfor %}
             </tbody>
         </table>

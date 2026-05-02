@@ -20,7 +20,7 @@
                         {{ team.get_status_display }}
                     </span>
                 </div>
-                <a href="{% url 'team_edit' team_id=team.pk %}" class="btn btn-trlm-navy w-100 mt-auto">
+                <a href="{% url 'squad_list' %}" class="btn btn-trlm-navy w-100 mt-auto">
                     View Team
                 </a>
             </div>
@@ -58,21 +58,30 @@
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
                 <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">Squad Availability</div>
-                <div class="d-flex gap-4 mb-3">
-                    <div>
-                        <div class="fs-3 fw-bold text-success">—</div>
-                        <div class="text-muted" style="font-size:0.75rem;">Available</div>
+                {% if squad_availability %}
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                    {% for player in squad_availability %}
+                    <div title="{{ player.name }}"
+                        style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff;
+                        background-color:{% if player.status == 'in' %}#28a745{% elif player.status == 'out' %}#dc3545{% else %}#adb5bd{% endif %};
+                        border:3px solid {% if player.gender == 'male' %}#0d6efd{% else %}#f0a500{% endif %};">
+                        {{ player.initials }}
                     </div>
-                    <div>
-                        <div class="fs-3 fw-bold text-danger">—</div>
-                        <div class="text-muted" style="font-size:0.75rem;">Unavailable</div>
-                    </div>
-                    <div>
-                        <div class="fs-3 fw-bold text-muted">—</div>
-                        <div class="text-muted" style="font-size:0.75rem;">No Response</div>
-                    </div>
+                    {% endfor %}
                 </div>
-                <button class="btn btn-trlm-navy w-100 mt-auto" disabled>Coming Soon</button>
+                <div class="d-flex gap-3 mb-3 small">
+                    <span><span class="fw-bold text-success">{{ in_count }}</span> In</span>
+                    <span><span class="fw-bold text-danger">{{ out_count }}</span> Out</span>
+                    <span><span class="fw-bold text-muted">{{ no_reply_count }}</span> No reply</span>
+                </div>
+                {% if male_in >= 4 and female_in >= 3 %}
+                <span class="badge bg-success mt-auto">Mixed minimum met</span>
+                {% else %}
+                <span class="badge bg-warning text-dark mt-auto">Mixed minimum not met</span>
+                {% endif %}
+                {% else %}
+                <div class="text-muted small">No registered players yet.</div>
+                {% endif %}
             </div>
         </div>
     </div>
