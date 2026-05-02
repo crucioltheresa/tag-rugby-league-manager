@@ -125,6 +125,59 @@ def captain_dashboard_view(request):
 
 
 @login_required
+def player_dashboard_view(request):
+    if request.user.role != "player":
+        raise PermissionDenied
+    from teams.models import Player
+    from fixtures.models import PlayerAvailability
+    player_record = (
+        Player.objects.filter(user=request.user, registered=True, team__season__status="active")
+        .select_related("team__season")
+        .first()
+    )
+    if not player_record:
+        messages.error(request, "You are not assigned to a team in an active season.")
+        return redirect("home")
+    team = player_record.team
+    season = team.season
+    upcoming_matches = (
+        Match.objects.filter(season=season, status="scheduled")
+        .filter(models.Q(team_a=team) | models.Q(team_b=team))
+        .order_by("date", "time")
+        .select_related("team_a", "team_b")
+    )
+    next_fixture = upcoming_matches.first()
+    all_standings = list(
+        Standing.objects.filter(season=season)
+        .order_by("-points", "-wins")
+        .select_related("team")
+    )
+    standing = None
+    league_position = None
+    for i, s in enumerate(all_standings):
+        if s.team == team:
+            standing = s
+            league_position = i + 1
+            break
+    next_fixture_status = None
+    if next_fixture:
+        avail = PlayerAvailability.objects.filter(match=next_fixture, player=player_record).first()
+        next_fixture_status = avail.status if avail else None
+    standings_rows = [{"position": i + 1, "standing": s} for i, s in enumerate(all_standings)]
+    return render(request, "accounts/player_dashboard.html", {
+        "team": team,
+        "season": season,
+        "standing": standing,
+        "next_fixture": next_fixture,
+        "next_fixture_status": next_fixture_status,
+        "upcoming_matches": upcoming_matches,
+        "standings_rows": standings_rows,
+        "league_position": league_position,
+        "total_teams": len(all_standings),
+    })
+
+
+@login_required
 def profile_view(request):
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=request.user)

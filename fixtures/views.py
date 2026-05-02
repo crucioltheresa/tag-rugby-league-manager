@@ -17,7 +17,6 @@ from standings.utils import update_standings
 
 @login_required
 def my_fixtures(request):
-    player_record = None
     team = (
         Team.objects.filter(captain=request.user, season__status="active").first()
         or Team.objects.filter(vice_captain=request.user, season__status="active").first()
@@ -30,36 +29,11 @@ def my_fixtures(request):
         )
         if player_record:
             team = player_record.team
-
     if not team:
         messages.error(request, "You are not assigned to a team in an active season.")
         return redirect("home")
-
-    matches = (
-        Match.objects.filter(season=team.season)
-        .filter(models.Q(team_a=team) | models.Q(team_b=team))
-        .order_by("round_number", "date", "time")
-        .select_related("team_a", "team_b")
-    )
-
-    avail_map = {}
-    if player_record:
-        avail_map = {
-            a.match_id: a.status
-            for a in PlayerAvailability.objects.filter(player=player_record)
-        }
-
-    match_rows = [
-        {"match": m, "my_status": avail_map.get(m.id)}
-        for m in matches
-    ]
-
-    return render(request, "fixtures/my_fixtures.html", {
-        "team": team,
-        "season": team.season,
-        "match_rows": match_rows,
-        "is_player": player_record is not None,
-    })
+    from django.urls import reverse
+    return redirect(reverse("fixture_list", kwargs={"season_id": team.season_id}) + "?filter=my_team")
 
 
 @login_required
@@ -81,7 +55,8 @@ def set_availability(request, match_id):
     PlayerAvailability.objects.update_or_create(
         match=match, player=player_record, defaults={"status": status}
     )
-    return redirect("my_fixtures")
+    from django.urls import reverse
+    return redirect(reverse("fixture_list", kwargs={"season_id": match.season_id}) + "?filter=my_team")
 
 
 @login_required
@@ -147,28 +122,79 @@ def current_fixtures(request):
 @login_required
 def fixture_list(request, season_id):
     season = get_object_or_404(Season, id=season_id)
-    matches = list(
+    active_filter = request.GET.get("filter", "all")
+
+    # Resolve the current user's team for this season
+    user_team = None
+    player_record = None
+    if request.user.role in ("captain", "vice_captain"):
+        user_team = (
+            Team.objects.filter(captain=request.user, season=season).first()
+            or Team.objects.filter(vice_captain=request.user, season=season).first()
+        )
+    elif request.user.role == "player":
+        pr = Player.objects.filter(user=request.user, team__season=season, registered=True).first()
+        if pr:
+            user_team = pr.team
+            player_record = pr
+
+    all_matches = list(
         Match.objects.filter(season=season)
         .order_by("date", "time", "round_number")
         .select_related("team_a", "team_b")
     )
+
+    # Chip counts
+    played_count = sum(1 for m in all_matches if m.status == "played")
+    upcoming_count = sum(1 for m in all_matches if m.status == "scheduled")
+    my_team_count = sum(
+        1 for m in all_matches
+        if user_team and (m.team_a == user_team or m.team_b == user_team)
+    )
+
+    # Apply filter
+    if active_filter == "played":
+        matches = [m for m in all_matches if m.status == "played"]
+    elif active_filter == "upcoming":
+        matches = [m for m in all_matches if m.status == "scheduled"]
+    elif active_filter == "my_team" and user_team:
+        matches = [m for m in all_matches if m.team_a == user_team or m.team_b == user_team]
+    else:
+        active_filter = "all"
+        matches = all_matches
+
+    # Availability for players on my_team filter
+    avail_in_ids = set()
+    avail_out_ids = set()
+    if player_record and active_filter == "my_team":
+        for a in PlayerAvailability.objects.filter(player=player_record):
+            if a.status == "in":
+                avail_in_ids.add(a.match_id)
+            else:
+                avail_out_ids.add(a.match_id)
+
     scheduled = [m for m in matches if m.date]
     unscheduled = [m for m in matches if not m.date]
-
     date_groups = [
         {"date": d, "matches": list(group)}
         for d, group in groupby(scheduled, key=lambda m: m.date)
     ]
-    return render(
-        request,
-        "fixtures/fixtures_list.html",
-        {
-            "season": season,
-            "date_groups": date_groups,
-            "unscheduled": unscheduled,
-            "has_matches": bool(matches),
-        },
-    )
+
+    return render(request, "fixtures/fixtures_list.html", {
+        "season": season,
+        "date_groups": date_groups,
+        "unscheduled": unscheduled,
+        "has_matches": bool(all_matches),
+        "active_filter": active_filter,
+        "total_count": len(all_matches),
+        "played_count": played_count,
+        "upcoming_count": upcoming_count,
+        "my_team_count": my_team_count,
+        "user_team": user_team,
+        "player_record": player_record,
+        "avail_in_ids": avail_in_ids,
+        "avail_out_ids": avail_out_ids,
+    })
 
 
 @login_required

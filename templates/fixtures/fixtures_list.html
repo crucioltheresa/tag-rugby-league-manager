@@ -4,26 +4,47 @@
 
 <div class="d-flex align-items-center justify-content-between mb-1 flex-wrap gap-2">
     <h2 class="fw-bold text-uppercase mb-0">Fixtures — {{ season.name }}</h2>
-    <span class="badge fs-6 bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
-        {{ season.get_status_display }}
-    </span>
+    <div class="d-flex gap-2 align-items-center">
+        <span class="badge fs-6 bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
+            {{ season.get_status_display }}
+        </span>
+        {% if has_matches %}
+        <a href="{% url 'standings' season_id=season.pk %}" class="btn btn-trlm-navy btn-sm">
+            <i class="fas fa-trophy me-1"></i>View Table
+        </a>
+        {% if user.role == "admin" %}
+        <a href="{% url 'bulk_schedule' season_id=season.pk %}" class="btn btn-trlm-pink btn-sm">
+            <i class="fas fa-calendar-check me-1"></i>Schedule All Rounds
+        </a>
+        {% endif %}
+        {% endif %}
+    </div>
 </div>
 <div class="border-bottom border-success border-3 mb-4 w-25"></div>
 
 {% if has_matches %}
-<div class="d-flex flex-wrap justify-content-end gap-2 mb-3">
-    <a href="{% url 'standings' season_id=season.pk %}" class="btn btn-trlm-navy btn-sm">
-        <i class="fas fa-trophy me-1"></i>View Table
+<!-- Filter chips -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="?filter=all"
+        class="btn btn-sm rounded-pill {% if active_filter == 'all' %}btn-trlm-navy{% else %}btn-outline-secondary{% endif %}">
+        All rounds <span class="ms-1 badge {% if active_filter == 'all' %}bg-white text-trlm-navy{% else %}bg-secondary{% endif %}">{{ total_count }}</span>
     </a>
-    {% if user.role == "admin" %}
-    <a href="{% url 'bulk_schedule' season_id=season.pk %}" class="btn btn-trlm-pink btn-sm">
-        <i class="fas fa-calendar-check me-1"></i>Schedule All Rounds
+    <a href="?filter=played"
+        class="btn btn-sm rounded-pill {% if active_filter == 'played' %}btn-trlm-navy{% else %}btn-outline-secondary{% endif %}">
+        Played <span class="ms-1 badge {% if active_filter == 'played' %}bg-white text-trlm-navy{% else %}bg-secondary{% endif %}">{{ played_count }}</span>
+    </a>
+    <a href="?filter=upcoming"
+        class="btn btn-sm rounded-pill {% if active_filter == 'upcoming' %}btn-trlm-navy{% else %}btn-outline-secondary{% endif %}">
+        Upcoming <span class="ms-1 badge {% if active_filter == 'upcoming' %}bg-white text-trlm-navy{% else %}bg-secondary{% endif %}">{{ upcoming_count }}</span>
+    </a>
+    {% if user_team %}
+    <a href="?filter=my_team"
+        class="btn btn-sm rounded-pill {% if active_filter == 'my_team' %}btn-trlm-navy{% else %}btn-outline-secondary{% endif %}">
+        My team <span class="ms-1 badge {% if active_filter == 'my_team' %}bg-white text-trlm-navy{% else %}bg-secondary{% endif %}">{{ my_team_count }}</span>
     </a>
     {% endif %}
 </div>
-{% endif %}
 
-{% if has_matches %}
 <div class="card shadow-sm border-0 feature-card rounded-3 overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover align-middle text-center mb-0">
@@ -37,13 +58,13 @@
                     <th class="d-none d-md-table-cell fw-semibold">Pitch</th>
                     <th class="fw-semibold">Status</th>
                     {% if user.role == "admin" %}<th class="d-none d-md-table-cell pe-4 fw-semibold">Actions</th>{% endif %}
+                    {% if player_record and active_filter == "my_team" %}<th class="pe-4 fw-semibold">Availability</th>{% endif %}
                 </tr>
             </thead>
             <tbody>
-
                 {% for group in date_groups %}
                 <tr class="fixture-date-header">
-                    <td colspan="{% if user.role == 'admin' %}7{% else %}6{% endif %}" class="px-4 py-2 text-start">
+                    <td colspan="{% if user.role == 'admin' %}8{% elif player_record and active_filter == 'my_team' %}8{% else %}7{% endif %}" class="px-4 py-2 text-start">
                         <span class="fw-bold">{{ group.date|date:"F j, Y" }}</span>
                         <span class="ms-2 opacity-75 small fw-normal">{{ group.date|date:"l" }}</span>
                         <span class="d-md-none ms-2"><span class="badge fixture-round-badge">R{{ group.matches.0.round_number }}</span></span>
@@ -60,7 +81,7 @@
                 {% for match in group.matches %}
                 <tr>
                     <td class="ps-4 d-none d-md-table-cell"><span class="badge fixture-round-badge">R{{ match.round_number }}</span></td>
-                    <td class="fw-semibold">{{ match.team_a.name }}</td>
+                    <td class="fw-semibold {% if match.team_a == user_team %}text-trlm-navy{% endif %}">{{ match.team_a.name }}</td>
                     <td>
                         {% if match.status == 'played' %}
                         <span class="fw-bold">{{ match.team_a_score }} – {{ match.team_b_score }}</span>
@@ -68,7 +89,7 @@
                         <span class="text-muted">vs</span>
                         {% endif %}
                     </td>
-                    <td class="fw-semibold">{{ match.team_b.name }}</td>
+                    <td class="fw-semibold {% if match.team_b == user_team %}text-trlm-navy{% endif %}">{{ match.team_b.name }}</td>
                     <td class="d-none d-md-table-cell text-muted small">{% if match.time %}{{ match.time }}{% else %}—{% endif %}</td>
                     <td class="d-none d-md-table-cell text-muted small">{% if match.pitch %}{{ match.pitch }}{% else %}—{% endif %}</td>
                     <td>
@@ -83,6 +104,26 @@
                             {% if match.status != 'played' %}<a href="{% url 'result_match' match_id=match.pk %}" class="btn btn-sm btn-outline-success py-0" title="Record Result"><i class="fas fa-check"></i></a>{% endif %}
                             {% if match.status != 'cancelled' %}<a href="{% url 'cancel_match' match_id=match.pk %}" class="btn btn-sm btn-outline-danger py-0" title="Cancel"><i class="fas fa-times"></i></a>{% endif %}
                         </div>
+                    </td>
+                    {% endif %}
+                    {% if player_record and active_filter == "my_team" %}
+                    <td class="pe-4">
+                        {% if match.status == 'scheduled' %}
+                        <div class="d-flex justify-content-center gap-1">
+                            <form method="post" action="{% url 'set_availability' match_id=match.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="in">
+                                <button type="submit" class="btn btn-sm {% if match.pk in avail_in_ids %}btn-success{% else %}btn-outline-success{% endif %}">In</button>
+                            </form>
+                            <form method="post" action="{% url 'set_availability' match_id=match.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="out">
+                                <button type="submit" class="btn btn-sm {% if match.pk in avail_out_ids %}btn-danger{% else %}btn-outline-danger{% endif %}">Out</button>
+                            </form>
+                        </div>
+                        {% else %}
+                        <span class="text-muted small">—</span>
+                        {% endif %}
                     </td>
                     {% endif %}
                 </tr>
@@ -103,15 +144,13 @@
                     <td class="fw-semibold">{{ match.team_b.name }}</td>
                     <td class="d-none d-md-table-cell text-muted small">—</td>
                     <td class="d-none d-md-table-cell text-muted small">—</td>
-                    <td>
-                        <span class="badge fixture-badge-scheduled">{{ match.get_status_display }}</span>
-                    </td>
+                    <td><span class="badge fixture-badge-scheduled">{{ match.get_status_display }}</span></td>
                     {% if user.role == "admin" %}
                     <td class="d-none d-md-table-cell pe-4">
                         <div class="d-flex justify-content-center gap-1">
-                            <a href="{% url 'edit_match' match_id=match.pk %}" class="btn btn-sm btn-outline-secondary py-0" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                            <a href="{% url 'result_match' match_id=match.pk %}" class="btn btn-sm btn-outline-success py-0" title="Record Result"><i class="fas fa-check"></i></a>
-                            <a href="{% url 'cancel_match' match_id=match.pk %}" class="btn btn-sm btn-outline-danger py-0" title="Cancel"><i class="fas fa-times"></i></a>
+                            <a href="{% url 'edit_match' match_id=match.pk %}" class="btn btn-sm btn-outline-secondary py-0"><i class="fas fa-pencil-alt"></i></a>
+                            <a href="{% url 'result_match' match_id=match.pk %}" class="btn btn-sm btn-outline-success py-0"><i class="fas fa-check"></i></a>
+                            <a href="{% url 'cancel_match' match_id=match.pk %}" class="btn btn-sm btn-outline-danger py-0"><i class="fas fa-times"></i></a>
                         </div>
                     </td>
                     {% endif %}

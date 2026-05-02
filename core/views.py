@@ -13,6 +13,8 @@ def index_view(request):
             return redirect("admin_dashboard")
         if request.user.role in ("captain", "vice_captain"):
             return redirect("captain_dashboard")
+        if request.user.role == "player":
+            return redirect("player_dashboard")
     return render(request, "core/index.html")
 
 
