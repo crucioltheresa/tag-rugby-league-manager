@@ -2,4 +2,7 @@ from django.apps import AppConfig
 
 
 class StandingsConfig(AppConfig):
-    name = 'standings'
+    name = "standings"
+
+    def ready(self):
+        import standings.signals

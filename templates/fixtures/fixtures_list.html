@@ -4,18 +4,22 @@
 
 <div class="d-flex align-items-center justify-content-between mb-1 flex-wrap gap-2">
     <h2 class="fw-bold text-uppercase mb-0">Fixtures — {{ season.name }}</h2>
-    <span
-        class="badge fs-6 bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
+    <span class="badge fs-6 bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
         {{ season.get_status_display }}
     </span>
 </div>
 <div class="border-bottom border-success border-3 mb-4 w-25"></div>
 
-{% if user.role == "admin" and has_matches %}
-<div class="d-flex justify-content-end mb-3">
+{% if has_matches %}
+<div class="d-flex flex-wrap justify-content-end gap-2 mb-3">
+    <a href="{% url 'standings' season_id=season.pk %}" class="btn btn-trlm-navy btn-sm">
+        <i class="fas fa-trophy me-1"></i>View Table
+    </a>
+    {% if user.role == "admin" %}
     <a href="{% url 'bulk_schedule' season_id=season.pk %}" class="btn btn-trlm-pink btn-sm">
         <i class="fas fa-calendar-check me-1"></i>Schedule All Rounds
     </a>
+    {% endif %}
 </div>
 {% endif %}
 
@@ -25,14 +29,14 @@
         <table class="table table-hover align-middle text-center mb-0">
             <thead class="small text-uppercase" style="background-color: var(--trlm-green); color: #fff;">
                 <tr>
-                    <th class="ps-4 fw-semibold">Round</th>
+                    <th class="ps-4 fw-semibold d-none d-md-table-cell">Round</th>
                     <th class="fw-semibold">Team A</th>
-                    <th class="text-center fw-semibold" style="width:80px;">Score</th>
+                    <th class="fw-semibold" style="width:80px;">Score</th>
                     <th class="fw-semibold">Team B</th>
-                    <th class="fw-semibold">Time</th>
-                    <th class="fw-semibold">Pitch</th>
+                    <th class="d-none d-md-table-cell fw-semibold">Time</th>
+                    <th class="d-none d-md-table-cell fw-semibold">Pitch</th>
                     <th class="fw-semibold">Status</th>
-                    {% if user.role == "admin" %}<th class="pe-4 fw-semibold">Actions</th>{% endif %}
+                    {% if user.role == "admin" %}<th class="d-none d-md-table-cell pe-4 fw-semibold">Actions</th>{% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -42,8 +46,9 @@
                     <td colspan="{% if user.role == 'admin' %}7{% else %}6{% endif %}" class="px-4 py-2 text-start">
                         <span class="fw-bold">{{ group.date|date:"F j, Y" }}</span>
                         <span class="ms-2 opacity-75 small fw-normal">{{ group.date|date:"l" }}</span>
+                        <span class="d-md-none ms-2"><span class="badge fixture-round-badge">R{{ group.matches.0.round_number }}</span></span>
                     </td>
-                    <td class="pe-4 py-2 text-end">
+                    <td class="d-none d-md-table-cell pe-4 py-2 text-end">
                         {% if user.role == "admin" %}
                         <a href="{% url 'schedule_round' season_id=season.pk round_number=group.matches.0.round_number %}"
                             class="btn btn-sm btn-outline-light py-0">
@@ -54,9 +59,9 @@
                 </tr>
                 {% for match in group.matches %}
                 <tr>
-                    <td class="ps-4"><span class="badge fixture-round-badge">R{{ match.round_number }}</span></td>
+                    <td class="ps-4 d-none d-md-table-cell"><span class="badge fixture-round-badge">R{{ match.round_number }}</span></td>
                     <td class="fw-semibold">{{ match.team_a.name }}</td>
-                    <td class="text-center">
+                    <td>
                         {% if match.status == 'played' %}
                         <span class="fw-bold">{{ match.team_a_score }} – {{ match.team_b_score }}</span>
                         {% else %}
@@ -64,15 +69,15 @@
                         {% endif %}
                     </td>
                     <td class="fw-semibold">{{ match.team_b.name }}</td>
-                    <td class="text-muted small">{% if match.time %}{{ match.time }}{% else %}—{% endif %}</td>
-                    <td class="text-muted small">{% if match.pitch %}{{ match.pitch }}{% else %}—{% endif %}</td>
+                    <td class="d-none d-md-table-cell text-muted small">{% if match.time %}{{ match.time }}{% else %}—{% endif %}</td>
+                    <td class="d-none d-md-table-cell text-muted small">{% if match.pitch %}{{ match.pitch }}{% else %}—{% endif %}</td>
                     <td>
                         <span class="badge {% if match.status == 'played' %}bg-success{% elif match.status == 'cancelled' %}bg-danger{% else %}fixture-badge-scheduled{% endif %}">
                             {{ match.get_status_display }}
                         </span>
                     </td>
                     {% if user.role == "admin" %}
-                    <td class="pe-4">
+                    <td class="d-none d-md-table-cell pe-4">
                         <div class="d-flex justify-content-center gap-1">
                             <a href="{% url 'edit_match' match_id=match.pk %}" class="btn btn-sm btn-outline-secondary py-0" title="Edit"><i class="fas fa-pencil-alt"></i></a>
                             {% if match.status != 'played' %}<a href="{% url 'result_match' match_id=match.pk %}" class="btn btn-sm btn-outline-success py-0" title="Record Result"><i class="fas fa-check"></i></a>{% endif %}
@@ -92,17 +97,17 @@
                 </tr>
                 {% for match in unscheduled %}
                 <tr>
-                    <td class="ps-4"><span class="badge fixture-round-badge">R{{ match.round_number }}</span></td>
+                    <td class="ps-4 d-none d-md-table-cell"><span class="badge fixture-round-badge">R{{ match.round_number }}</span></td>
                     <td class="fw-semibold">{{ match.team_a.name }}</td>
-                    <td class="text-center"><span class="text-muted">vs</span></td>
+                    <td><span class="text-muted">vs</span></td>
                     <td class="fw-semibold">{{ match.team_b.name }}</td>
-                    <td class="text-muted small">—</td>
-                    <td class="text-muted small">—</td>
+                    <td class="d-none d-md-table-cell text-muted small">—</td>
+                    <td class="d-none d-md-table-cell text-muted small">—</td>
                     <td>
                         <span class="badge fixture-badge-scheduled">{{ match.get_status_display }}</span>
                     </td>
                     {% if user.role == "admin" %}
-                    <td class="pe-4">
+                    <td class="d-none d-md-table-cell pe-4">
                         <div class="d-flex justify-content-center gap-1">
                             <a href="{% url 'edit_match' match_id=match.pk %}" class="btn btn-sm btn-outline-secondary py-0" title="Edit"><i class="fas fa-pencil-alt"></i></a>
                             <a href="{% url 'result_match' match_id=match.pk %}" class="btn btn-sm btn-outline-success py-0" title="Record Result"><i class="fas fa-check"></i></a>

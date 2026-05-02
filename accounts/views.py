@@ -8,6 +8,7 @@ from core.models import InterestRegistration
 from seasons.models import Season
 from teams.models import Team
 from fixtures.models import Match
+from standings.models import Standing
 
 
 class CustomLoginView(LoginView):
@@ -61,9 +62,27 @@ def captain_dashboard_view(request):
         .select_related("team_a", "team_b")
         .first()
     )
+    all_standings = list(
+        Standing.objects.filter(season=team.season)
+        .order_by("-points", "-wins")
+        .select_related("team")
+    )
+    standings_rows = [{"position": i + 1, "standing": s} for i, s in enumerate(all_standings)]
+    league_position = None
+    league_points = None
+    for row in standings_rows:
+        if row["standing"].team == team:
+            league_position = row["position"]
+            league_points = row["standing"].points
+            break
+
     return render(request, "accounts/captain_dashboard.html", {
         "team": team,
         "season": team.season,
         "matches": matches,
         "next_fixture": next_fixture,
+        "standings_rows": standings_rows,
+        "league_position": league_position,
+        "league_points": league_points,
+        "total_teams": len(all_standings),
     })

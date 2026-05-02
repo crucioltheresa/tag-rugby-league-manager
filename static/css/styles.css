@@ -112,6 +112,17 @@
     color: #fff !important;
 }
 
+/* Mobile table tweaks */
+@media (max-width: 768px) {
+    .table td, .table th {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.82rem;
+    }
+    .fixture-round-badge {
+        font-size: 0.65rem;
+    }
+}
+
 /* Fixture list date header rows */
 .fixture-date-header {
     background-color: var(--trlm-navy) !important;

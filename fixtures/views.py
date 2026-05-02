@@ -11,6 +11,7 @@ from datetime import timedelta
 from seasons.models import Season
 from teams.models import Team
 from .models import Match
+from standings.utils import update_standings
 
 
 @login_required
@@ -327,6 +328,7 @@ def match_result(request, match_id):
             match = form.save(commit=False)
             match.status = "played"
             match.save()
+            update_standings(match.season)
             messages.success(
                 request, "Score has been added to your match successfully!"
             )
@@ -344,6 +346,9 @@ def match_cancel(request, match_id):
     if request.method == "POST":
         match.status = "cancelled"
         match.save()
-        messages.success(request, f"Match {match.team_a.name} vs {match.team_b.name} has been cancelled.")
+        messages.success(
+            request,
+            f"Match {match.team_a.name} vs {match.team_b.name} has been cancelled.",
+        )
         return redirect("fixture_list", season_id=match.season_id)
     return render(request, "fixtures/match_cancel.html", {"match": match})

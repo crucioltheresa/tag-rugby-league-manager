@@ -10,7 +10,7 @@
 <div class="row g-3 mb-5">
 
     <!-- My Team -->
-    <div class="col-md-3">
+    <div class="col-sm-6 col-lg-3">
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
                 <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">My Team</div>
@@ -28,7 +28,7 @@
     </div>
 
     <!-- Next Fixture -->
-    <div class="col-md-3">
+    <div class="col-sm-6 col-lg-3">
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
                 <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">Next Fixture</div>
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Squad Availability -->
-    <div class="col-md-3">
+    <div class="col-sm-6 col-lg-3">
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
                 <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">Squad Availability</div>
@@ -78,13 +78,17 @@
     </div>
 
     <!-- League Position -->
-    <div class="col-md-3">
+    <div class="col-sm-6 col-lg-3">
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
                 <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">League Position</div>
-                <div class="fw-bold text-trlm-navy mb-1" style="font-size: 3rem; line-height:1;">—</div>
-                <div class="text-muted small mb-3">Points: —</div>
-                <button class="btn btn-trlm-navy w-100 mt-auto" disabled>Coming Soon</button>
+                {% if league_position %}
+                    <div class="fw-bold text-trlm-navy mb-1" style="font-size: 3rem; line-height:1;">{{ league_position }}<span class="fs-6 text-muted fw-normal"> / {{ total_teams }}</span></div>
+                    <div class="text-muted small">Points: <span class="fw-semibold {% if league_points < 0 %}text-danger{% else %}text-trlm-navy{% endif %}">{{ league_points }}</span></div>
+                {% else %}
+                    <div class="fw-bold text-trlm-navy mb-1" style="font-size: 3rem; line-height:1;">—</div>
+                    <div class="text-muted small">No results yet</div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -138,6 +142,50 @@
 </div>
 {% else %}
 <div class="alert alert-info">No fixtures have been scheduled yet.</div>
+{% endif %}
+
+<!-- League Table -->
+<h5 class="fw-bold text-uppercase mb-3 mt-5">League Table</h5>
+{% if standings_rows %}
+<div class="card shadow-sm border-0 feature-card rounded-3 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center mb-0">
+            <thead class="small text-uppercase" style="background-color: var(--trlm-green); color: #fff;">
+                <tr>
+                    <th class="ps-4 fw-semibold">Pos</th>
+                    <th class="text-start fw-semibold">Team</th>
+                    <th class="d-none d-md-table-cell fw-semibold">Pld</th>
+                    <th class="fw-semibold">W</th>
+                    <th class="d-none d-md-table-cell fw-semibold">L</th>
+                    <th class="d-none d-md-table-cell fw-semibold">D</th>
+                    <th class="d-none d-md-table-cell fw-semibold">B</th>
+                    <th class="pe-4 fw-semibold">Pts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in standings_rows %}
+                <tr {% if row.standing.team == team %}style="background-color: rgba(45,92,26,0.08); font-weight: 600;"{% endif %}>
+                    <td class="ps-4 text-muted small">{{ row.position }}</td>
+                    <td class="text-start">
+                        {{ row.standing.team.name }}
+                        {% if row.standing.team == team %}<span class="badge fixture-round-badge ms-1" style="font-size:0.65rem;">You</span>{% endif %}
+                    </td>
+                    <td class="d-none d-md-table-cell">{{ row.standing.played }}</td>
+                    <td>{{ row.standing.wins }}</td>
+                    <td class="d-none d-md-table-cell">{{ row.standing.losses }}</td>
+                    <td class="d-none d-md-table-cell">{{ row.standing.draws }}</td>
+                    <td class="d-none d-md-table-cell">{{ row.standing.byes }}</td>
+                    <td class="pe-4 fw-bold {% if row.standing.points < 0 %}text-danger{% endif %}">
+                        {{ row.standing.points }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">No standings available yet — results need to be recorded first.</div>
 {% endif %}
 
 {% endblock %}

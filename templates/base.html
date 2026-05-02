@@ -27,10 +27,26 @@
             <a class="navbar-brand" href="#">
                 <img src="{% static 'images/logo.png' %}" alt="trlm Logo" height="50" class="rounded-circle">
             </a>
+
+            {% if user.is_authenticated %}
+            <div class="dropdown ms-auto me-2 d-lg-none">
+                <div class="d-flex align-items-center text-white gap-2 dropdown-toggle" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                    <i class="fas fa-user-circle fs-4"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><span class="dropdown-item-text fw-semibold">{{ user.username }}</span></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
+                </ul>
+            </div>
+            {% endif %}
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                 aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse justify-content-center" id="mainNav">
                 <ul class="navbar-nav gap-2 mb-2 mb-lg-0">
                     {% if not user.is_authenticated %}
@@ -44,8 +60,7 @@
                         <a class="nav-link px-3" href="{% url 'account_signup' %}">Sign Up</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-3 btn-trlm-pink rounded" href="{% url 'interest_registration' %}">Register
-                            Interest</a>
+                        <a class="nav-link px-3 btn-trlm-pink rounded" href="{% url 'interest_registration' %}">Register Interest</a>
                     </li>
                     {% elif user.role == "captain" or user.role == "vice_captain" %}
                     <li class="nav-item">
@@ -74,14 +89,15 @@
                     {% endif %}
                 </ul>
             </div>
+
             {% if user.is_authenticated %}
-            <div class="dropdown ms-auto">
+            <div class="dropdown ms-auto d-none d-lg-block">
                 <div class="d-flex align-items-center text-white gap-2 dropdown-toggle" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
                     <i class="fas fa-user-circle fs-4"></i>
                     <div class="lh-sm">
-                        <small class="d-block fw-semibold text-uppercase">{{ user.get_full_name|default:user.username }}</small>
-                        <small class="text-white-50">Welcome, {{ user.first_name|default:user.username }}</small>
+                        <small class="d-block fw-semibold text-uppercase">{{ user.username }}</small>
+                        <small class="text-white-50">Welcome, {{ user.username }}</small>
                     </div>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end">
