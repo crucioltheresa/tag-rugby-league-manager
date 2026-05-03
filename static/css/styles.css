@@ -165,3 +165,100 @@
     color: var(--trlm-navy);
     font-weight: 600;
 }
+
+/* Brand green text */
+.text-trlm-green {
+    color: var(--trlm-green) !important;
+}
+
+/* Avatars */
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.avatar-lg {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.avatar-placeholder {
+    background: #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Cursor pointer utility */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Green table header */
+.trlm-table-header {
+    background-color: var(--trlm-green) !important;
+    color: #fff;
+}
+
+/* Fixed score column */
+.col-score {
+    width: 80px;
+}
+
+/* Name column fills remaining space */
+.col-name {
+    width: 100%;
+}
+
+/* Current team row highlight in standings */
+.table-row-current {
+    background-color: rgba(45, 92, 26, 0.08);
+    font-weight: 600;
+}
+
+/* Large league position number */
+.league-position-display {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+/* Stat label below dashboard metric */
+.stat-label {
+    font-size: 0.75rem;
+}
+
+/* Extra-small badge (e.g. "You" in standings) */
+.badge-xs {
+    font-size: 0.65rem;
+}
+
+/* Wide letter-spacing label */
+.ls-wide {
+    letter-spacing: 0.05em;
+}
+
+/* Squad availability circle avatar */
+.squad-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+}
+.squad-avatar-in      { background-color: #28a745; }
+.squad-avatar-out     { background-color: #dc3545; }
+.squad-avatar-pending { background-color: #adb5bd; }
+.squad-avatar-male    { border: 3px solid #0d6efd; }
+.squad-avatar-female  { border: 3px solid #f0a500; }
+
+/* Team detail collapse panel */
+.team-detail-panel {
+    background-color: #f8f9fa;
+    border-top: 2px solid var(--trlm-green);
+}

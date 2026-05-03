@@ -30,11 +30,10 @@
 
             {% if user.is_authenticated %}
             <div class="dropdown ms-auto me-2 d-lg-none">
-                <div class="d-flex align-items-center text-white gap-2 dropdown-toggle" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                <div class="d-flex align-items-center text-white gap-2 dropdown-toggle cursor-pointer" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
                     {% if user.profile_photo %}
-                    <img src="{{ user.profile_photo.url }}" alt="avatar"
-                        style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    <img src="{{ user.profile_photo.url }}" alt="avatar" class="avatar-sm">
                     {% else %}
                     <i class="fas fa-user-circle fs-4"></i>
                     {% endif %}
@@ -98,11 +97,10 @@
 
             {% if user.is_authenticated %}
             <div class="dropdown ms-auto d-none d-lg-block">
-                <div class="d-flex align-items-center text-white gap-2 dropdown-toggle" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                <div class="d-flex align-items-center text-white gap-2 dropdown-toggle cursor-pointer" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
                     {% if user.profile_photo %}
-                    <img src="{{ user.profile_photo.url }}" alt="avatar"
-                        style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    <img src="{{ user.profile_photo.url }}" alt="avatar" class="avatar-sm">
                     {% else %}
                     <i class="fas fa-user-circle fs-4"></i>
                     {% endif %}

@@ -13,10 +13,9 @@
 
                 <div class="d-flex align-items-center gap-3 mb-4">
                     {% if request.user.profile_photo %}
-                    <img src="{{ request.user.profile_photo.url }}" alt="Profile photo"
-                        style="width:72px;height:72px;border-radius:50%;object-fit:cover;">
+                    <img src="{{ request.user.profile_photo.url }}" alt="Profile photo" class="avatar-lg">
                     {% else %}
-                    <div style="width:72px;height:72px;border-radius:50%;background:#dee2e6;display:flex;align-items:center;justify-content:center;">
+                    <div class="avatar-lg avatar-placeholder">
                         <i class="fas fa-user-circle fs-1 text-muted"></i>
                     </div>
                     {% endif %}

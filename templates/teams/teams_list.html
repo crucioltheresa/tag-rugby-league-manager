@@ -11,15 +11,15 @@
 <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <thead class="small text-uppercase" style="background-color: var(--trlm-green); color: #fff;">
+            <thead class="small text-uppercase trlm-table-header">
                 <tr>
-                    <th class="ps-4 fw-semibold" style="width:100%;">Name</th>
+                    <th class="ps-4 fw-semibold col-name">Name</th>
                     <th class="pe-4 fw-semibold text-end text-nowrap">Status</th>
                 </tr>
             </thead>
             <tbody>
                 {% for team in teams %}
-                <tr class="cursor-pointer" data-bs-toggle="collapse" data-bs-target="#team-detail-{{ team.id }}" aria-expanded="false" style="cursor:pointer;">
+                <tr class="cursor-pointer" data-bs-toggle="collapse" data-bs-target="#team-detail-{{ team.id }}" aria-expanded="false">
                     <td class="ps-4 fw-semibold">
                         <i class="fas fa-chevron-right me-2 small text-muted team-chevron"></i>{{ team.name }}
                     </td>
@@ -31,7 +31,7 @@
                 </tr>
                 <tr class="collapse" id="team-detail-{{ team.id }}">
                     <td colspan="5" class="p-0">
-                        <div class="px-4 py-3" style="background-color: #f8f9fa; border-top: 2px solid var(--trlm-green);">
+                        <div class="px-4 py-3 team-detail-panel">
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <div class="small text-muted text-uppercase fw-semibold mb-1">Season</div>

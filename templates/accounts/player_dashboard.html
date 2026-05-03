@@ -13,7 +13,7 @@
     <div class="col-sm-6">
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
-                <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">My Team</div>
+                <div class="small fw-semibold mb-3 text-trlm-green">My Team</div>
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="fw-bold text-trlm-navy fs-4 d-md-none">{{ team.name }}</div>
                     <div class="fw-bold text-trlm-navy fs-2 d-none d-md-block">{{ team.name }}</div>
@@ -24,15 +24,15 @@
                 <div class="row g-3 mt-auto">
                     <div class="col-4 text-center">
                         <div class="fw-bold fs-3 text-trlm-navy lh-1">{% if league_position %}{{ league_position }}{% else %}—{% endif %}</div>
-                        <div class="text-muted" style="font-size:0.75rem;">Position</div>
+                        <div class="text-muted stat-label">Position</div>
                     </div>
                     <div class="col-4 text-center border-start border-end">
                         <div class="fw-bold fs-3 text-trlm-navy lh-1">{% if standing %}{{ standing.wins }}{% else %}—{% endif %}</div>
-                        <div class="text-muted" style="font-size:0.75rem;">Wins</div>
+                        <div class="text-muted stat-label">Wins</div>
                     </div>
                     <div class="col-4 text-center">
                         <div class="fw-bold fs-3 text-trlm-navy lh-1">{% if standing %}{{ standing.points }}{% else %}—{% endif %}</div>
-                        <div class="text-muted" style="font-size:0.75rem;">Points</div>
+                        <div class="text-muted stat-label">Points</div>
                     </div>
                 </div>
             </div>
@@ -43,7 +43,7 @@
     <div class="col-sm-6">
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
-                <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">Next Fixture</div>
+                <div class="small fw-semibold mb-3 text-trlm-green">Next Fixture</div>
                 {% if next_fixture %}
                     {% if next_fixture.team_a == team %}
                         <div class="fw-bold fs-5 text-trlm-navy mb-2">vs {{ next_fixture.team_b.name }}</div>
@@ -98,11 +98,11 @@
 <div class="card shadow-sm border-0 feature-card rounded-3 overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover align-middle text-center mb-0">
-            <thead class="small text-uppercase" style="background-color: var(--trlm-green); color: #fff;">
+            <thead class="small text-uppercase trlm-table-header">
                 <tr>
                     <th class="ps-4 fw-semibold">Round</th>
                     <th class="fw-semibold">Team A</th>
-                    <th class="fw-semibold" style="width:80px;">Score</th>
+                    <th class="fw-semibold col-score">Score</th>
                     <th class="fw-semibold">Team B</th>
                     <th class="fw-semibold">Date</th>
                     <th class="fw-semibold">Time</th>
@@ -147,7 +147,7 @@
 <div class="card shadow-sm border-0 feature-card rounded-3 overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover align-middle text-center mb-0">
-            <thead class="small text-uppercase" style="background-color: var(--trlm-green); color: #fff;">
+            <thead class="small text-uppercase trlm-table-header">
                 <tr>
                     <th class="ps-4 fw-semibold">Pos</th>
                     <th class="text-start fw-semibold">Team</th>
@@ -161,11 +161,11 @@
             </thead>
             <tbody>
                 {% for row in standings_rows %}
-                <tr {% if row.standing.team == team %}style="background-color: rgba(45,92,26,0.08); font-weight: 600;"{% endif %}>
+                <tr {% if row.standing.team == team %}class="table-row-current"{% endif %}>
                     <td class="ps-4 text-muted small">{{ row.position }}</td>
                     <td class="text-start">
                         {{ row.standing.team.name }}
-                        {% if row.standing.team == team %}<span class="badge fixture-round-badge ms-1" style="font-size:0.65rem;">You</span>{% endif %}
+                        {% if row.standing.team == team %}<span class="badge fixture-round-badge badge-xs ms-1">You</span>{% endif %}
                     </td>
                     <td class="d-none d-md-table-cell">{{ row.standing.played }}</td>
                     <td>{{ row.standing.wins }}</td>
