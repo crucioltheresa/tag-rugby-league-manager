@@ -1,3 +1,4 @@
+from datetime import date
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -151,6 +152,7 @@ def captain_dashboard_view(request):
         "no_reply_count": no_reply_count,
         "male_in": male_in,
         "female_in": female_in,
+        "today": date.today(),
     })
 
 
@@ -228,6 +230,7 @@ def player_dashboard_view(request):
         "standings_rows": standings_rows,
         "league_position": league_position,
         "total_teams": len(all_standings),
+        "today": date.today(),
     })
 
 

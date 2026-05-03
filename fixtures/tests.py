@@ -1,11 +1,14 @@
+from datetime import date, timedelta
+
+from django.db import models
 from django.test import TestCase
 from django.urls import reverse
 
 from accounts.models import User
-from seasons.models import Season
-from teams.models import Team
+from seasons.models import Season, SeasonTimeSlot
+from teams.models import Team, Player
 
-from .models import Match
+from .models import Match, PlayerAvailability
 from .utils import generate_fixtures
 
 
@@ -195,3 +198,110 @@ class MatchActionTests(FixtureGenerationSetupMixin, TestCase):
             reverse("cancel_match", kwargs={"match_id": self.match.pk})
         )
         self.assertEqual(response.status_code, 403)
+
+
+class PlayerAvailabilityTests(FixtureGenerationSetupMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        generate_fixtures(self.season)
+        self.team = self.teams[0]
+        self.other_team = self.teams[1]
+        self.player_user = User.objects.create_user(
+            username="player1", email="player1@test.com", password="pass", role="player"
+        )
+        self.player = Player.objects.create(
+            team=self.team,
+            user=self.player_user,
+            email="player1@test.com",
+            name="Player One",
+            registered=True,
+        )
+        # A match involving self.team
+        self.team_match = Match.objects.filter(
+            season=self.season
+        ).filter(
+            models.Q(team_a=self.team) | models.Q(team_b=self.team)
+        ).first()
+        self.team_match.date = date.today() + timedelta(days=7)
+        self.team_match.save()
+        # A match not involving self.team
+        self.other_match = Match.objects.filter(
+            season=self.season
+        ).exclude(
+            models.Q(team_a=self.team) | models.Q(team_b=self.team)
+        ).first()
+        self.other_match.date = date.today() + timedelta(days=7)
+        self.other_match.save()
+
+    def test_player_can_set_availability_for_own_team_match(self):
+        self.client.force_login(self.player_user)
+        self.client.post(
+            reverse("set_availability", kwargs={"match_id": self.team_match.pk}),
+            {"status": "in"},
+        )
+        avail = PlayerAvailability.objects.filter(
+            match=self.team_match, player=self.player
+        ).first()
+        self.assertIsNotNone(avail)
+        self.assertEqual(avail.status, "in")
+
+    def test_player_cannot_set_availability_for_other_teams_match(self):
+        self.client.force_login(self.player_user)
+        self.client.post(
+            reverse("set_availability", kwargs={"match_id": self.other_match.pk}),
+            {"status": "in"},
+        )
+        self.assertFalse(
+            PlayerAvailability.objects.filter(match=self.other_match, player=self.player).exists()
+        )
+
+    def test_availability_locked_after_match_date(self):
+        self.team_match.date = date.today() - timedelta(days=1)
+        self.team_match.save()
+        self.client.force_login(self.player_user)
+        self.client.post(
+            reverse("set_availability", kwargs={"match_id": self.team_match.pk}),
+            {"status": "in"},
+        )
+        self.assertFalse(
+            PlayerAvailability.objects.filter(match=self.team_match, player=self.player).exists()
+        )
+
+
+class BulkScheduleTests(FixtureGenerationSetupMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        generate_fixtures(self.season)
+        # 1 time slot × 2 pitches = 2 slots, matching the 2 matches per round
+        SeasonTimeSlot.objects.create(season=self.season, time="18:00", order=1)
+        self.url = reverse("bulk_schedule", kwargs={"season_id": self.season.pk})
+        self.client.force_login(self.admin)
+
+    def test_all_unscheduled_rounds_get_date_time_pitch(self):
+        self.client.post(self.url, {"start_date": "2026-03-01", "interval_days": 7})
+        matches = list(Match.objects.filter(season=self.season).order_by("round_number", "id"))
+        for match in matches:
+            self.assertIsNotNone(match.date, msg=f"Round {match.round_number} match has no date")
+            self.assertIsNotNone(match.time, msg=f"Round {match.round_number} match has no time")
+            self.assertNotEqual(match.pitch, "", msg=f"Round {match.round_number} match has no pitch")
+        # Round 1 → start_date, Round 2 → start_date + 7 days
+        round1_dates = {str(m.date) for m in matches if m.round_number == 1}
+        round2_dates = {str(m.date) for m in matches if m.round_number == 2}
+        self.assertEqual(round1_dates, {"2026-03-01"})
+        self.assertEqual(round2_dates, {"2026-03-08"})
+
+    def test_already_scheduled_rounds_not_overwritten(self):
+        Match.objects.filter(season=self.season, round_number=1).update(date="2025-12-01")
+        self.client.post(self.url, {"start_date": "2026-03-01", "interval_days": 7})
+        round1_dates = {
+            str(m.date)
+            for m in Match.objects.filter(season=self.season, round_number=1)
+        }
+        self.assertEqual(round1_dates, {"2025-12-01"})
+        # Rounds 2–6 should have been assigned new dates
+        unscheduled_after = Match.objects.filter(
+            season=self.season, date=None
+        ).exclude(round_number=1)
+        self.assertEqual(unscheduled_after.count(), 0)

@@ -161,3 +161,47 @@ class StandingsSignalTest(TestCase):
         match.save()
 
         self.assertFalse(Standing.objects.filter(season=self.season).exists())
+
+
+class LastPlacePenaltyTests(TestCase):
+
+    def setUp(self):
+        self.season = make_season()
+        self.alpha = make_team(self.season, "Alpha", "alpha_cap")
+        self.beta = make_team(self.season, "Beta", "beta_cap")
+        self.gamma = make_team(self.season, "Gamma", "gamma_cap")
+
+    def test_winless_last_place_receives_correct_penalty(self):
+        make_match(self.season, self.alpha, self.beta, 3, 1)   # Alpha wins
+        make_match(self.season, self.alpha, self.gamma, 3, 1)  # Alpha wins
+        make_match(self.season, self.beta, self.gamma, 3, 1)   # Beta wins
+        update_standings(self.season)
+        # Gamma: 0 wins, 2 losses, 2 played → penalty = -played = -2
+        gamma_s = Standing.objects.get(season=self.season, team=self.gamma)
+        self.assertEqual(gamma_s.wins, 0)
+        self.assertEqual(gamma_s.played, 2)
+        self.assertEqual(gamma_s.points, -2)
+
+    def test_last_place_team_with_win_is_not_penalised(self):
+        # Circular results: every team ends on 1 win, 4 pts — last place has wins > 0
+        make_match(self.season, self.alpha, self.beta, 3, 1)   # Alpha beats Beta
+        make_match(self.season, self.beta, self.gamma, 3, 1)   # Beta beats Gamma
+        make_match(self.season, self.gamma, self.alpha, 3, 1)  # Gamma beats Alpha
+        update_standings(self.season)
+        for team in [self.alpha, self.beta, self.gamma]:
+            s = Standing.objects.get(season=self.season, team=team)
+            self.assertEqual(s.wins, 1)
+            self.assertEqual(s.points, 4)
+
+    def test_penalty_recalculates_correctly_after_new_result(self):
+        # Gamma loses twice → winless last place → penalty applied
+        make_match(self.season, self.alpha, self.gamma, 3, 1)
+        make_match(self.season, self.beta, self.gamma, 3, 1)
+        gamma_s = Standing.objects.get(season=self.season, team=self.gamma)
+        self.assertEqual(gamma_s.points, -2)
+
+        # Gamma wins → signal re-runs update_standings → penalty removed
+        make_match(self.season, self.gamma, self.beta, 3, 1)
+        gamma_s.refresh_from_db()
+        self.assertEqual(gamma_s.wins, 1)
+        self.assertEqual(gamma_s.points, 4)  # 1 win × 4 pts, no penalty

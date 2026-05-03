@@ -38,9 +38,15 @@ def my_fixtures(request):
 
 @login_required
 def set_availability(request, match_id):
+    from datetime import date
     if request.method != "POST":
         return redirect("my_fixtures")
     match = get_object_or_404(Match, id=match_id)
+    if match.date and match.date < date.today():
+        messages.error(request, "Availability can no longer be changed for past matches.")
+        from django.urls import reverse
+        next_url = request.META.get("HTTP_REFERER") or reverse("player_dashboard")
+        return redirect(next_url)
     player_record = (
         Player.objects.filter(user=request.user, registered=True)
         .filter(models.Q(team=match.team_a) | models.Q(team=match.team_b))

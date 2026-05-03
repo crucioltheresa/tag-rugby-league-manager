@@ -56,6 +56,9 @@
                     <a href="{% url 'calendar_match' fixture_id=next_fixture.pk %}" class="btn btn-outline-secondary w-100 mb-2">
                         <i class="fas fa-calendar-plus me-1"></i>Add to Calendar
                     </a>
+                    {% if next_fixture.date and next_fixture.date < today %}
+                    <div class="text-muted small mt-auto">Availability closed for this match.</div>
+                    {% else %}
                     <div class="d-flex gap-2 mt-auto">
                         <form method="post" action="{% url 'set_availability' match_id=next_fixture.pk %}" class="flex-grow-1">
                             {% csrf_token %}
@@ -72,6 +75,7 @@
                             </button>
                         </form>
                     </div>
+                    {% endif %}
                 {% else %}
                     <div class="text-muted small">No upcoming fixtures scheduled.</div>
                 {% endif %}
