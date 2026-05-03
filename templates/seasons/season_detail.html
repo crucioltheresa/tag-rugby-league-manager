@@ -4,49 +4,43 @@
 
 <div class="d-flex align-items-center justify-content-between mb-1 flex-wrap gap-2">
     <h2 class="fw-bold text-uppercase mb-0">{{ season.name }}</h2>
-    <span
-        class="badge fs-6 bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
+    <span class="badge fs-6 bg-{% if season.status == 'active' %}success{% elif season.status == 'finished' %}danger{% else %}secondary{% endif %}">
         {{ season.get_status_display }}
     </span>
 </div>
 <div class="border-bottom border-success border-3 mb-4 w-25"></div>
 
-<div class="card shadow-sm border-0 mb-4">
+<!-- Season info -->
+<div class="card shadow-sm border-0 rounded-3 mb-4">
     <div class="card-body p-4">
         <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-6 col-md-3">
                 <p class="text-muted small text-uppercase fw-semibold mb-1">Start Date</p>
-                <p class="fw-bold">{{ season.start_date }}</p>
+                <p class="fw-bold mb-0">{{ season.start_date|date:"F j, Y" }}</p>
             </div>
-            <div class="col-md-6">
+            <div class="col-6 col-md-3">
                 <p class="text-muted small text-uppercase fw-semibold mb-1">End Date</p>
-                <p class="fw-bold">{{ season.end_date }}</p>
+                <p class="fw-bold mb-0">{{ season.end_date|date:"F j, Y" }}</p>
             </div>
-            <div class="col-md-12">
-                <p class="text-muted small text-uppercase fw-semibold mb-1">Venue</p>
-                <p class="fw-bold">{{ season.get_venue_display }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-body p-4">
-        <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-6 col-md-3">
                 <p class="text-muted small text-uppercase fw-semibold mb-1">Rounds</p>
-                <p class="fw-bold">{{ season.num_rounds }}</p>
+                <p class="fw-bold mb-0">{{ season.num_rounds }}</p>
             </div>
-            <div class="col-md-6">
+            <div class="col-6 col-md-3">
                 <p class="text-muted small text-uppercase fw-semibold mb-1">Pitches</p>
-                <p class="fw-bold">{{ season.num_pitches }}</p>
+                <p class="fw-bold mb-0">{{ season.num_pitches }}</p>
+            </div>
+            <div class="col-12">
+                <p class="text-muted small text-uppercase fw-semibold mb-1">Venue</p>
+                <p class="fw-bold mb-0">{{ season.get_venue_display }}</p>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Kickoff times -->
 <h5 class="fw-semibold text-uppercase text-muted mb-2">Kickoff Times</h5>
-<div class="card shadow-sm border-0 mb-4">
+<div class="card shadow-sm border-0 rounded-3 mb-4">
     <div class="card-body p-4">
         {% if time_slots %}
         <ul class="list-group list-group-flush mb-3">
@@ -66,14 +60,14 @@
         <p class="text-muted small mb-3">No kickoff times added yet.</p>
         {% endif %}
 
-        <form method="post" action="{% url 'add_time_slot' season_id=season.pk %}" class="d-flex gap-2 align-items-end">
+        <form method="post" action="{% url 'add_time_slot' season_id=season.pk %}" class="d-flex flex-wrap gap-2 align-items-end">
             {% csrf_token %}
             <div>
-                <label class="form-label fw-semibold small">Add Kickoff Time</label>
+                <label class="form-label fw-semibold small mb-1">Add Kickoff Time</label>
                 {{ timeslot_form.time }}
             </div>
             <div>
-                <label class="form-label fw-semibold small">Order</label>
+                <label class="form-label fw-semibold small mb-1">Order</label>
                 {{ timeslot_form.order }}
             </div>
             <button type="submit" class="btn btn-trlm-navy btn-sm">
@@ -83,6 +77,7 @@
     </div>
 </div>
 
+<!-- Actions -->
 <div class="d-flex flex-wrap gap-2">
     <a href="{% url 'season_edit' season.pk %}" class="btn btn-trlm-navy">
         <i class="fas fa-edit me-1"></i>Edit
@@ -103,7 +98,7 @@
     </a>
     {% endif %}
     <a href="{% url 'seasons_list_view' %}" class="btn btn-outline-secondary ms-auto">
-        <i class="fas fa-arrow-left me-1"></i>Back to Seasons
+        <i class="fas fa-arrow-left me-1"></i>Back
     </a>
 </div>
 

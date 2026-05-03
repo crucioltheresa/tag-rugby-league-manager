@@ -14,7 +14,12 @@ from .forms import TeamRegistrationForm, AddPlayerForm
 def teams_list_view(request):
     if request.user.role != "admin":
         raise PermissionDenied
-    teams_list = Team.objects.all()
+    teams_list = (
+        Team.objects.all()
+        .select_related("captain", "vice_captain", "season")
+        .annotate(player_count=models.Count("player", filter=models.Q(player__registered=True)))
+        .order_by("season__name", "name")
+    )
     return render(request, "teams/teams_list.html", {"teams": teams_list})
 
 
@@ -142,6 +147,36 @@ def squad_list(request):
         return redirect("home")
     players = Player.objects.filter(team=team).select_related("user").order_by("-registered", "name")
     return render(request, "teams/squad_list.html", {"team": team, "players": players})
+
+
+@login_required
+def set_vice_captain(request, player_id):
+    player = get_object_or_404(Player, id=player_id)
+    team = player.team
+    if request.user != team.captain:
+        raise PermissionDenied
+    if request.method != "POST":
+        return redirect("squad_list")
+    if not player.user:
+        messages.error(request, "This player doesn't have an account yet and cannot be set as vice captain.")
+        return redirect("squad_list")
+    # Demote the previous VC back to player (only if they were promoted from player, not if they're a captain elsewhere)
+    if team.vice_captain and team.vice_captain != player.user:
+        prev_vc = team.vice_captain
+        if prev_vc.role == "vice_captain":
+            if Team.objects.filter(captain=prev_vc).exists():
+                prev_vc.role = "captain"
+            else:
+                prev_vc.role = "player"
+            prev_vc.save()
+    # Promote the new VC (only change role if they're currently a player)
+    if player.user.role == "player":
+        player.user.role = "vice_captain"
+        player.user.save()
+    team.vice_captain = player.user
+    team.save()
+    messages.success(request, f"{player.name} is now the vice captain.")
+    return redirect("squad_list")
 
 
 @login_required

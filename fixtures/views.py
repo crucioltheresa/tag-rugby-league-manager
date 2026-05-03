@@ -46,6 +46,28 @@ def set_availability(request, match_id):
         .filter(models.Q(team=match.team_a) | models.Q(team=match.team_b))
         .first()
     )
+    if not player_record and request.user.role in ("captain", "vice_captain"):
+        from teams.models import Team as TeamModel
+        team = TeamModel.objects.filter(
+            models.Q(captain=request.user) | models.Q(vice_captain=request.user),
+            id__in=[match.team_a_id, match.team_b_id],
+        ).first()
+        if team:
+            existing = Player.objects.filter(email=request.user.email).first()
+            if existing:
+                if not existing.user:
+                    existing.user = request.user
+                    existing.registered = True
+                    existing.save()
+                player_record = existing
+            else:
+                player_record = Player.objects.create(
+                    user=request.user,
+                    team=team,
+                    email=request.user.email,
+                    name=request.user.get_full_name() or request.user.username,
+                    registered=True,
+                )
     if not player_record:
         messages.error(request, "You are not a registered player for this match.")
         return redirect("my_fixtures")
@@ -55,8 +77,11 @@ def set_availability(request, match_id):
     PlayerAvailability.objects.update_or_create(
         match=match, player=player_record, defaults={"status": status}
     )
+    label = "In" if status == "in" else "Out"
+    messages.success(request, f"You marked yourself as {label} for {match.team_a.name} vs {match.team_b.name}. You can change this anytime.")
     from django.urls import reverse
-    return redirect(reverse("fixture_list", kwargs={"season_id": match.season_id}) + "?filter=my_team")
+    next_url = request.POST.get("next") or request.META.get("HTTP_REFERER") or reverse("player_dashboard")
+    return redirect(next_url)
 
 
 @login_required

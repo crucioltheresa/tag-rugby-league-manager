@@ -26,9 +26,11 @@ class CustomSignupForm(SignupForm):
 
 
 class ProfileForm(forms.ModelForm):
+    gender = forms.ChoiceField(choices=GENDER_CHOICES, label="Gender")
+
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "profile_photo"]
+        fields = ["first_name", "last_name", "email", "gender", "profile_photo"]
 
     def clean_email(self):
         email = self.cleaned_data["email"]

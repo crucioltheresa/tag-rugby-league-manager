@@ -8,6 +8,7 @@ from .views import (
     squad_list,
     add_player,
     remove_player,
+    set_vice_captain,
 )
 
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
     path("teams/squad/", squad_list, name="squad_list"),
     path("teams/squad/add/", add_player, name="add_player"),
     path("teams/squad/<int:player_id>/remove/", remove_player, name="remove_player"),
+    path("teams/squad/<int:player_id>/set-vc/", set_vice_captain, name="set_vice_captain"),
 ]

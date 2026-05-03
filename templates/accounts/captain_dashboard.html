@@ -14,12 +14,22 @@
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
                 <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">My Team</div>
-                <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
                     <div class="fw-bold fs-5 text-trlm-navy">{{ team.name }}</div>
                     <span class="badge {% if team.status == 'approved' %}bg-success{% elif team.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
                         {{ team.get_status_display }}
                     </span>
                 </div>
+                <div class="text-muted small mb-3">{{ user_role_in_team }}</div>
+                {% if all_teams|length > 1 %}
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                    {% for t in all_teams %}
+                    <a href="?team={{ t.pk }}" class="btn btn-sm rounded-pill {% if t == team %}btn-trlm-navy{% else %}btn-outline-secondary{% endif %}">
+                        {{ t.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 <a href="{% url 'squad_list' %}" class="btn btn-trlm-navy w-100 mt-auto">
                     View Team
                 </a>
@@ -43,9 +53,25 @@
                     <div class="text-muted small mb-1">{{ next_fixture.time }}</div>
                     {% endif %}
                     <div class="text-muted small mb-3">{{ season.get_venue_display }}</div>
-                    <a href="{% url 'calendar_match' fixture_id=next_fixture.pk %}" class="btn btn-outline-secondary w-100 mt-auto">
+                    <a href="{% url 'calendar_match' fixture_id=next_fixture.pk %}" class="btn btn-outline-secondary w-100 mb-2">
                         <i class="fas fa-calendar-plus me-1"></i>Add to Calendar
                     </a>
+                    <div class="d-flex gap-2 mt-auto">
+                        <form method="post" action="{% url 'set_availability' match_id=next_fixture.pk %}" class="flex-grow-1">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="in">
+                            <button type="submit" class="btn w-100 {% if next_fixture_status == 'in' %}btn-success{% else %}btn-outline-success{% endif %}">
+                                <i class="fas fa-check me-1"></i>In
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'set_availability' match_id=next_fixture.pk %}" class="flex-grow-1">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="out">
+                            <button type="submit" class="btn w-100 {% if next_fixture_status == 'out' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                                <i class="fas fa-times me-1"></i>Out
+                            </button>
+                        </form>
+                    </div>
                 {% else %}
                     <div class="text-muted small">No upcoming fixtures scheduled.</div>
                 {% endif %}
@@ -57,7 +83,14 @@
     <div class="col-sm-6 col-lg-3">
         <div class="card border-0 shadow-sm h-100 rounded-3">
             <div class="card-body p-4 d-flex flex-column">
-                <div class="small fw-semibold mb-3" style="color: var(--trlm-green);">Squad Availability</div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="small fw-semibold" style="color: var(--trlm-green);">Squad Availability</div>
+                    <span tabindex="0" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="left" data-bs-html="true"
+                        data-bs-content="<div class='small'><div class='mb-2 fw-semibold text-uppercase' style='font-size:0.65rem;letter-spacing:0.05em;'>Availability</div><div class='mb-1'><span class='badge bg-success'>In</span> Confirmed availability</div><div class='mb-1'><span class='badge bg-danger'>Out</span> Declined</div><div class='mb-3'><span class='badge bg-secondary'>—</span> No response yet</div><div class='mb-2 fw-semibold text-uppercase' style='font-size:0.65rem;letter-spacing:0.05em;'>Gender</div><div class='mb-1'><span class='text-primary fs-6'>&#9679;</span> Male player</div><div><span class='text-warning fs-6'>&#9679;</span> Female player</div></div>"
+                        style="cursor:pointer;">
+                        <i class="fas fa-info-circle text-muted"></i>
+                    </span>
+                </div>
                 {% if squad_availability %}
                 <div class="d-flex flex-wrap gap-1 mb-3">
                     {% for player in squad_availability %}
@@ -197,4 +230,12 @@
 <div class="alert alert-info">No standings available yet — results need to be recorded first.</div>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(el) {
+    new bootstrap.Popover(el);
+});
+</script>
 {% endblock %}

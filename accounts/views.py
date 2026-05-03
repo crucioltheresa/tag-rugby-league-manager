@@ -42,12 +42,16 @@ def admin_dashboard_view(request):
 def captain_dashboard_view(request):
     if request.user.role not in ("captain", "vice_captain"):
         raise PermissionDenied
-    team = (
-        Team.objects.filter(captain=request.user).first()
-        or Team.objects.filter(vice_captain=request.user).first()
+    all_teams = list(
+        Team.objects.filter(
+            models.Q(captain=request.user) | models.Q(vice_captain=request.user)
+        ).select_related("season").distinct()
     )
-    if not team:
+    if not all_teams:
         return redirect("home")
+    team_id = request.GET.get("team")
+    team = next((t for t in all_teams if str(t.pk) == team_id), None) or all_teams[0]
+    user_role_in_team = "Captain" if team.captain == request.user else "Vice Captain"
     matches = (
         Match.objects.filter(season=team.season)
         .filter(models.Q(team_a=team) | models.Q(team_b=team))
@@ -78,17 +82,40 @@ def captain_dashboard_view(request):
 
     from teams.models import Player
     from fixtures.models import PlayerAvailability
-    registered_players = Player.objects.filter(team=team, registered=True).select_related("user")
 
+    registered_players = list(
+        Player.objects.filter(team=team, registered=True).select_related("user")
+    )
+
+    # Include captain/VC player records even if they belong to a different team
+    captain_users = [u for u in [team.captain, team.vice_captain] if u]
+    captain_emails = [u.email for u in captain_users]
+    existing_user_ids = {p.user_id for p in registered_players if p.user_id}
+    extra_players = list(
+        Player.objects.filter(
+            models.Q(user__in=[u.id for u in captain_users]) | models.Q(email__in=captain_emails),
+            registered=True,
+        )
+        .exclude(user_id__in=existing_user_ids)
+        .select_related("user")
+    )
+    all_squad_players = registered_players + extra_players
+
+    captain_player_record = next(
+        (p for p in all_squad_players if p.user == request.user), None
+    )
+    next_fixture_status = None
     avail_map = {}
     if next_fixture:
         avail_map = {
             a.player_id: a.status
             for a in PlayerAvailability.objects.filter(match=next_fixture)
         }
+        if captain_player_record:
+            next_fixture_status = avail_map.get(captain_player_record.id)
 
     squad_availability = []
-    for p in registered_players:
+    for p in all_squad_players:
         parts = p.name.strip().split()
         initials = (parts[0][0] + (parts[1][0] if len(parts) > 1 else "")).upper()
         gender = p.user.gender if p.user else ""
@@ -111,6 +138,9 @@ def captain_dashboard_view(request):
         "season": team.season,
         "matches": matches,
         "next_fixture": next_fixture,
+        "next_fixture_status": next_fixture_status,
+        "all_teams": all_teams,
+        "user_role_in_team": user_role_in_team,
         "standings_rows": standings_rows,
         "league_position": league_position,
         "league_points": league_points,
@@ -140,13 +170,35 @@ def player_dashboard_view(request):
         return redirect("home")
     team = player_record.team
     season = team.season
-    upcoming_matches = (
-        Match.objects.filter(season=season, status="scheduled")
-        .filter(models.Q(team_a=team) | models.Q(team_b=team))
-        .order_by("date", "time")
+    all_season_matches = list(
+        Match.objects.filter(season=season)
+        .order_by("round_number", "date", "time")
         .select_related("team_a", "team_b")
     )
-    next_fixture = upcoming_matches.first()
+    all_team_matches = [
+        m for m in all_season_matches
+        if m.team_a == team or m.team_b == team
+    ]
+    next_fixture = next(
+        (m for m in all_team_matches if m.status == "scheduled"), None
+    )
+    matches = all_season_matches
+    round_numbers = sorted(set(m.round_number for m in matches if m.round_number is not None))
+    scheduled_rounds = sorted(set(
+        m.round_number for m in matches
+        if m.round_number is not None and m.status == "scheduled"
+    ))
+    default_round = scheduled_rounds[0] if scheduled_rounds else (round_numbers[-1] if round_numbers else None)
+    active_round_param = request.GET.get("round")
+    if active_round_param:
+        try:
+            active_round = int(active_round_param)
+        except ValueError:
+            active_round = default_round
+    else:
+        active_round = default_round
+    if active_round is not None:
+        matches = [m for m in matches if m.round_number == active_round]
     all_standings = list(
         Standing.objects.filter(season=season)
         .order_by("-points", "-wins")
@@ -170,7 +222,9 @@ def player_dashboard_view(request):
         "standing": standing,
         "next_fixture": next_fixture,
         "next_fixture_status": next_fixture_status,
-        "upcoming_matches": upcoming_matches,
+        "matches": matches,
+        "active_round": active_round,
+        "round_numbers": round_numbers,
         "standings_rows": standings_rows,
         "league_position": league_position,
         "total_teams": len(all_standings),

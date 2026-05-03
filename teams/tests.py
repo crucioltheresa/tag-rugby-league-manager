@@ -1,7 +1,8 @@
 from django.test import TestCase
 from accounts.models import User
+from core.models import EmailWhitelist
 from seasons.models import Season
-from .models import Team
+from .models import Team, Player
 
 
 class TeamSetupMixin:
@@ -13,13 +14,13 @@ class TeamSetupMixin:
             status="active",
         )
         self.captain = User.objects.create_user(
-            username="captain1", password="pass", role="captain"
+            username="captain1", email="captain1@test.com", password="pass", role="captain"
         )
         self.vice_captain = User.objects.create_user(
-            username="vicecaptain1", password="pass", role="vice_captain"
+            username="vicecaptain1", email="vc1@test.com", password="pass", role="vice_captain"
         )
         self.admin = User.objects.create_user(
-            username="admin1", password="pass", role="admin"
+            username="admin1", email="admin1@test.com", password="pass", role="admin"
         )
 
 
@@ -144,7 +145,7 @@ class TeamEditTests(TeamSetupMixin, TestCase):
 
     def test_other_captain_cannot_edit_team(self):
         other_captain = User.objects.create_user(
-            username="captain2", password="pass", role="captain"
+            username="captain2", email="captain2@test.com", password="pass", role="captain"
         )
         self.client.force_login(other_captain)
         response = self.client.post(
@@ -156,3 +157,117 @@ class TeamEditTests(TeamSetupMixin, TestCase):
         self.assertEqual(self.team.name, "Team A")
 
     # TODO: test that edit is disabled after fixture generation (US-10)
+
+
+# US-19: Squad Management
+class SquadManagementTests(TeamSetupMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.team = Team.objects.create(
+            name="Team A",
+            season=self.season,
+            captain=self.captain,
+            vice_captain=self.vice_captain,
+        )
+        self.player_user = User.objects.create_user(
+            username="player1", email="player1@test.com", password="pass", role="player"
+        )
+
+    # --- add_player ---
+
+    def test_captain_can_add_player(self):
+        self.client.force_login(self.captain)
+        response = self.client.post(
+            "/teams/squad/add/",
+            {"name": "Alice Smith", "email": "alice@example.com"},
+        )
+        self.assertEqual(Player.objects.count(), 1)
+        player = Player.objects.first()
+        self.assertEqual(player.name, "Alice Smith")
+        self.assertEqual(player.team, self.team)
+        self.assertFalse(player.registered)
+
+    def test_vice_captain_can_add_player(self):
+        self.client.force_login(self.vice_captain)
+        response = self.client.post(
+            "/teams/squad/add/",
+            {"name": "Bob Jones", "email": "bob@example.com"},
+        )
+        self.assertEqual(Player.objects.count(), 1)
+
+    def test_add_player_creates_email_whitelist_entry(self):
+        self.client.force_login(self.captain)
+        self.client.post(
+            "/teams/squad/add/",
+            {"name": "Alice Smith", "email": "alice@example.com"},
+        )
+        self.assertTrue(EmailWhitelist.objects.filter(email="alice@example.com").exists())
+
+    def test_duplicate_email_shows_error(self):
+        Player.objects.create(team=self.team, name="Alice Smith", email="alice@example.com")
+        self.client.force_login(self.captain)
+        response = self.client.post(
+            "/teams/squad/add/",
+            {"name": "Alice Duplicate", "email": "alice@example.com"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Player.objects.count(), 1)
+        messages = list(response.context["messages"])
+        self.assertTrue(any("already in your squad" in str(m) for m in messages))
+
+    def test_non_captain_cannot_access_add_player(self):
+        self.client.force_login(self.player_user)
+        response = self.client.get("/teams/squad/add/")
+        self.assertEqual(response.status_code, 403)
+
+    def test_admin_cannot_access_add_player(self):
+        self.client.force_login(self.admin)
+        response = self.client.get("/teams/squad/add/")
+        self.assertEqual(response.status_code, 403)
+
+    # --- squad_list ---
+
+    def test_captain_can_view_squad_list(self):
+        self.client.force_login(self.captain)
+        response = self.client.get("/teams/squad/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_non_captain_cannot_view_squad_list(self):
+        self.client.force_login(self.player_user)
+        response = self.client.get("/teams/squad/")
+        self.assertEqual(response.status_code, 403)
+
+    # --- remove_player ---
+
+    def test_captain_can_remove_unregistered_player(self):
+        player = Player.objects.create(team=self.team, name="Alice Smith", email="alice@example.com")
+        EmailWhitelist.objects.create(email="alice@example.com")
+        self.client.force_login(self.captain)
+        self.client.post(f"/teams/squad/{player.id}/remove/")
+        self.assertEqual(Player.objects.count(), 0)
+        self.assertFalse(EmailWhitelist.objects.filter(email="alice@example.com").exists())
+
+    def test_removing_registered_player_keeps_whitelist(self):
+        player = Player.objects.create(
+            team=self.team,
+            name="Alice Smith",
+            email="alice@example.com",
+            user=self.player_user,
+            registered=True,
+        )
+        EmailWhitelist.objects.create(email="alice@example.com")
+        self.client.force_login(self.captain)
+        self.client.post(f"/teams/squad/{player.id}/remove/")
+        self.assertEqual(Player.objects.count(), 0)
+        self.assertTrue(EmailWhitelist.objects.filter(email="alice@example.com").exists())
+
+    def test_other_captain_cannot_remove_player(self):
+        other_captain = User.objects.create_user(
+            username="captain2", email="captain2b@test.com", password="pass", role="captain"
+        )
+        player = Player.objects.create(team=self.team, name="Alice Smith", email="alice@example.com")
+        self.client.force_login(other_captain)
+        response = self.client.post(f"/teams/squad/{player.id}/remove/")
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Player.objects.count(), 1)

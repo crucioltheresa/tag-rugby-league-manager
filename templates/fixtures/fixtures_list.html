@@ -100,9 +100,13 @@
                     {% if user.role == "admin" %}
                     <td class="d-none d-md-table-cell pe-4">
                         <div class="d-flex justify-content-center gap-1">
-                            <a href="{% url 'edit_match' match_id=match.pk %}" class="btn btn-sm btn-outline-secondary py-0" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                            {% if match.status != 'played' %}<a href="{% url 'result_match' match_id=match.pk %}" class="btn btn-sm btn-outline-success py-0" title="Record Result"><i class="fas fa-check"></i></a>{% endif %}
-                            {% if match.status != 'cancelled' %}<a href="{% url 'cancel_match' match_id=match.pk %}" class="btn btn-sm btn-outline-danger py-0" title="Cancel"><i class="fas fa-times"></i></a>{% endif %}
+                            {% if match.status == 'played' %}
+                                <a href="{% url 'result_match' match_id=match.pk %}" class="btn btn-sm btn-outline-secondary py-0" title="Edit Score"><i class="fas fa-pencil-alt"></i></a>
+                            {% else %}
+                                <a href="{% url 'edit_match' match_id=match.pk %}" class="btn btn-sm btn-outline-secondary py-0" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+                                <a href="{% url 'result_match' match_id=match.pk %}" class="btn btn-sm btn-outline-success py-0" title="Record Result"><i class="fas fa-check"></i></a>
+                                {% if match.status != 'cancelled' %}<a href="{% url 'cancel_match' match_id=match.pk %}" class="btn btn-sm btn-outline-danger py-0" title="Cancel"><i class="fas fa-times"></i></a>{% endif %}
+                            {% endif %}
                         </div>
                     </td>
                     {% endif %}
